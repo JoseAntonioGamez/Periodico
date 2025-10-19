@@ -1,69 +1,120 @@
 # Periódico - Documentación
 
-Se ha procedido a la creación de objetos en la base de datos mediante Seeder y Faker, además de crear un backup de los datos con fixture.
+Información sobre los modelos, con estructura de cada clase y explicacion de los parametros usados, además del diagrama entidad-relación.
 
-## Breve descripción de cada función en generar_datos
+## Descripción de los modelos
 
-### generate_autores(self)
+### Autor
 
-Crea 10 registros de autores con datos simulados como nombres, biografías, edades, sueldos y campos booleanos.
+- **nombre**: Texto, nombre completo, único.
+- **bio**: Texto, biografía opcional.
+- **edad**: Entero positivo, edad, opcional.
+- **sueldo**: Decimal, sueldo mensual.
+- **es_redactor**: Booleano, indica si es redactor, no editable.
+
+### PerfilAutor
+
+- **autor**: Relación uno a uno con Autor.
+- **ciudad**: Texto opcional.
+- **telefono**: Texto, solo números.
+- **fecha_nacimiento**: Fecha opcional.
+- **hora_favorita**: Hora, se actualiza automáticamente.
+
+### Usuario
+
+- **nombre**: Texto.
+- **registrado_en**: Fecha y hora de registro automática.
+- **es_premium**: Booleano para usuario premium.
+- **puntos**: Entero, editable.
+
+### PerfilUsuario
+
+- **usuario**: Relación uno a uno con Usuario.
+- **direccion**: Texto opcional.
+- **telefono**: Texto opcional.
+- **fecha_registro**: Fecha creación automática.
+- **preferencia_hora**: Hora, automática.
+
+### Seccion
+
+- **nombre**: Texto con opciones: Política, Deportes, Cultura.
+- **descripcion**: Texto opcional.
+- **importancia**: Número entero.
+- **activa**: Booleano.
+
+### Articulo
+
+- **titulo**: Texto único.
+- **contenido**: Texto completo.
+- **autor**: Relación muchos a uno con Autor.
+- **seccion**: Relación muchos a uno con Seccion, opcional.
+- **visitas**: Número positivo.
+- **publicado_en**: Fecha y hora creación automática.
+
+### Portada
+
+- **articulo_principal**: Relación uno a uno con Articulo.
+- **fecha**: Fecha creación automática.
+- **mensaje**: Texto corto.
+- **destacado**: Booleano.
+
+### Etiqueta
+
+- **nombre**: Texto opcional.
+- **color**: Texto, color HTML.
+- **descripcion**: Texto opcional.
+- **activa**: Booleano.
+
+### ArticuloEtiqueta (Tabla intermedia)
+
+- **articulo**: Relación muchos a uno con Articulo.
+- **etiqueta**: Relación muchos a uno con Etiqueta.
+- **relevancia**: Número flotante.
+- **fecha_asignacion**: Fecha opcional.
+- **comentario**: Texto opcional.
+
+### Evento
+
+- **nombre**: Texto.
+- **lugar**: Texto opcional.
+- **fecha**: Fecha.
+- **articulos**: Relación muchos a muchos con Articulo.
+- **capacidad**: Número positivo.
+
+### Grupo
+
+- **nombre**: Texto.
+- **descripcion**: Texto opcional.
+- **usuarios**: Relación muchos a muchos con Usuario.
+- **creado_en**: Fecha creación automática.
+
+### Comentario
+
+- **usuario**: Relación muchos a uno con Usuario.
+- **articulo**: Relación muchos a uno con Articulo.
+- **texto**: Texto opcional.
+- **fecha**: Fecha y hora actualización automática.
+- **puntuacion**: Número flotante.
 
 ---
 
-### generate_usuarios(self)
+## Parámetros usados en los campos
 
-Crea 10 usuarios con nombres únicos, estado premium y puntos aleatorios.
-
----
-
-### generate_secciones(self)
-
-Crea 10 secciones temáticas del periódico, asignando nombre, descripción, importancia y estado activo.
-
----
-
-### generate_etiquetas(self)
-
-Crea 10 etiquetas con nombre, color y descripción para clasificar artículos.
+- **max_length**: Limita longitud de texto.
+- **unique**: Garantiza valor único.
+- **blank**: Permite campo vacío en formularios.
+- **null**: Acepta valor NULL en base de datos.
+- **default**: Valor por defecto.
+- **help_text**: Texto de ayuda para formularios/admin.
+- **editable**: Controla edición en admin.
+- **choices**: Opciones limitadas para campo.
+- **on_delete**: Acción al eliminar entidad relacionada.
+- **auto_now_add** y **auto_now**: Actualizan fecha y hora automáticamente.
 
 ---
 
-### generate_eventos(self)
+## Esquema Entidad-Relación
 
-Crea 10 eventos con nombres creativos, ubicaciones, fechas y capacidad estimada.
+A continuación, se muestra el diseño del diagrama entidad-relación:
 
----
-
-### generate_grupos(self)
-
-Crea 10 grupos para organizar usuarios, con nombres y descripciones variadas.
-
----
-
-### generate_articulos(self)
-
-Crea 10 artículos vinculados a autores y secciones aleatorias, con títulos únicos, contenido y visitas simuladas.
-
----
-
-### generate_portadas(self)
-
-Crea hasta 10 portadas vinculadas a artículos diferentes, respetando la restricción del artículo principal.
-
----
-
-### generate_perfiles(self)
-
-Crea nuevos perfiles para autores y usuarios, asignando datos de contacto y preferencias aleatorias.
-
----
-
-### generate_articulo_etiquetas(self)
-
-Crea 10 relaciones entre artículos y etiquetas con atributos adicionales como relevancia, fecha y comentarios.
-
----
-
-### generate_comentarios(self)
-
-Crea comentarios simulados de usuarios en artículos, con texto y puntuación aleatoria.
+![Diagrama entidad-relación](diagrama/periodico.png)
