@@ -75,3 +75,25 @@ def articulos_por_fecha(request, anio, mes):
         .order_by('-publicado_en')
 
     return render(request, 'articulos/articulos_por_fecha.html', {'articulos': articulos, 'anio': anio, 'mes': mes})
+
+"""
+URL 4: Muestra los articulos filtrando por el nombre de la sección.
+"""
+
+def articulos_por_seccion(request, nombre):
+
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT a.*
+    + FROM periodicoweb_articulo a
+    + INNER JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+    + WHERE s.nombre = '<nombre>'
+    + ORDER BY a.publicado_en DESC)
+    )
+    """
+    articulos = Articulo.objects.select_related('seccion', 'autor') \
+        .filter(seccion__nombre=nombre) \
+        .order_by('-publicado_en')
+
+    return render(request, 'articulos/articulos_por_seccion.html', {'articulos': articulos, 'nombre': nombre})

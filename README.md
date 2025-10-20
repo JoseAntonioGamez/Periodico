@@ -40,3 +40,13 @@ Lista artículos publicados en un año y mes determinados.
 - Consulta SQL equivalente comentada.  
 - Ordena los artículos por fecha descendente.  
 - Muestra toda la información relacionada de autor y sección. 
+
+**(nombre: articulos_por_seccion (URL4) [articulos_por_seccion.html])**  
+
+Lista artículos filtrados por abreviatura corta (campo nombre) de la sección, usando expresión regular en la URL (re_path).
+
+*Requisitos cumplidos:*  
+- Uso de re_path para la URL con expresión regular y parámetro string en nombre.  
+- Filtro string válido en relación ManyToOne: seccion__nombre=nombre.  
+- Optimización con select_related para incluir datos de autor y sección en la consulta.  
+- Consulta SQL equivalente comentada.
