@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from .import views
 
 urlpatterns = [
@@ -6,5 +6,6 @@ urlpatterns = [
     path('articulos/', views.listar_articulos, name='lista_articulos'),
     path('articulo/<int:id>/', views.detalle_articulo, name='detalle_articulo'),
     path('articulos/fecha/<int:anio>/<int:mes>/', views.articulos_por_fecha, name='articulos_por_fecha'),
+    re_path(r'^articulos/seccion/(?P<nombre>[\w-]+)/$', views.articulos_por_seccion, name='articulos_por_seccion'),
 
 ]
