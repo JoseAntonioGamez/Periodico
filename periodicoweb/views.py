@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Articulo
 
 # Create your views here.
@@ -28,3 +28,27 @@ def listar_articulos(request):
 
     """
     return render(request, 'articulos/articulos.html', {'articulos': articulos})
+
+"""
+URL 2: Muestra los detalles especificos de un articulo especifico por su ID.
+"""
+
+def detalle_articulo(request, id):
+    
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
+    + FROM periodicoweb_articulo a
+    + INNER JOIN periodicoweb_autor au ON a.autor_id = au.id
+    + LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+    + WHERE a.id = <id>)
+    )
+    """
+
+    articulo = get_object_or_404(
+        Articulo.objects.select_related('autor', 'seccion'),
+        pk=id
+    )
+
+    return render(request, 'articulos/detalle.html', {'articulo': articulo})
