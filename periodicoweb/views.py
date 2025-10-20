@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Articulo
+from django.db.models import Q
 
 # Create your views here.
 def post_list(request):
@@ -52,3 +53,25 @@ def detalle_articulo(request, id):
     )
 
     return render(request, 'articulos/detalle.html', {'articulo': articulo})
+
+"""
+URL 3: Muestra los detalles especificos de un articulo especifico por su ID.
+"""
+
+def articulos_por_fecha(request, anio, mes):
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT a.*
+    + FROM periodicoweb_articulo a
+    + WHERE EXTRACT(YEAR FROM a.publicado_en) = <anio>
+    + AND EXTRACT(MONTH FROM a.publicado_en) = <mes>
+    + ORDER BY a.publicado_en DESC)
+    )
+    """
+
+    articulos = Articulo.objects.select_related('autor', 'seccion') \
+        .filter(publicado_en__year=anio, publicado_en__month=mes) \
+        .order_by('-publicado_en')
+
+    return render(request, 'articulos/articulos_por_fecha.html', {'articulos': articulos, 'anio': anio, 'mes': mes})

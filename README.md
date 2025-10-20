@@ -28,3 +28,15 @@ Muestra toda la información del artículo seleccionado por ID, incluyendo datos
 - Consulta SQL comentada en el código.  
 - Vista y plantilla muestran todo el detalle solicitado.  
 - Manejo de error 404 con get_object_or_404. 
+
+**(nombre: articulos_por_fecha (URL3) [articulos_por_fecha.html])**  
+
+Lista artículos publicados en un año y mes determinados.
+
+*Requisitos cumplidos:*  
+- URL con dos parámetros enteros.  
+- Uso de filtros AND en QuerySet para extraer los artículos de esa fecha.  
+- Select_related para optimizar las relaciones ManyToOne.  
+- Consulta SQL equivalente comentada.  
+- Ordena los artículos por fecha descendente.  
+- Muestra toda la información relacionada de autor y sección. 
