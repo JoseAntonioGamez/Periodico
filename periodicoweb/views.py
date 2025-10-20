@@ -55,7 +55,7 @@ def detalle_articulo(request, id):
     return render(request, 'articulos/detalle.html', {'articulo': articulo})
 
 """
-URL 3: Muestra los detalles especificos de un articulo especifico por su ID.
+URL 3: Muestra los articulos publicados en un año y mes específicos.
 """
 
 def articulos_por_fecha(request, anio, mes):
