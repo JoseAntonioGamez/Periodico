@@ -50,3 +50,17 @@ Lista artículos filtrados por abreviatura corta (campo nombre) de la sección, 
 - Filtro string válido en relación ManyToOne: seccion__nombre=nombre.  
 - Optimización con select_related para incluir datos de autor y sección en la consulta.  
 - Consulta SQL equivalente comentada.
+
+**(nombre: buscar_articulos (URL5) [buscar_articulos.html])**
+
+Busca artículos cuyo título o contenido contengan un texto determinado (parámetro string). Usa filtros combinados con OR mediante objetos Q.
+
+*Requisitos cumplidos:*
+- Uso de parámetro string en la URL.
+- Filtro OR mediante Q objects.
+- Relación ManyToOne (autor, sección) optimizada con select_related.
+- Consulta SQL equivalente comentada en la vista.
+- Orden descendente por fecha de publicación.
+- Página funcional mostrando título, autor, sección y fecha.
+- Manejo de casos donde no se encuentran resultados.
+- Integración en el índice principal para facilitar pruebas.

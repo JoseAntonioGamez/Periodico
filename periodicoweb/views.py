@@ -97,3 +97,25 @@ def articulos_por_seccion(request, nombre):
         .order_by('-publicado_en')
 
     return render(request, 'articulos/articulos_por_seccion.html', {'articulos': articulos, 'nombre': nombre})
+
+"""
+URL 5: Muestra los articulos filtrando por el nombre de la sección.
+"""
+
+def buscar_articulos(request, criterio):
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT a.*
+    FROM periodicoweb_articulo a
+    WHERE a.titulo LIKE '%<criterio>%'
+    OR a.contenido LIKE '%<criterio>%'
+    ORDER BY a.publicado_en DESC)
+    )
+    """
+    
+    articulos = Articulo.objects.select_related('autor', 'seccion') \
+        .filter(Q(titulo__icontains=criterio) | Q(contenido__icontains=criterio)) \
+        .order_by('-publicado_en')
+    
+    return render(request, 'articulos/buscar_articulos.html', {'articulos': articulos, 'criterio': criterio})
