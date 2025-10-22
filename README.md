@@ -76,3 +76,17 @@ Muestra estadísticas agregadas sobre los artículos, incluyendo la longitud del
 - Consulta SQL equivalente comentada en la vista.  
 - Visualización en plantilla con formato legible y redondeo de decimales.  
 - Integración en el índice principal para facilitar pruebas.
+
+**(nombre: estadisticas_autores (URL7) [estadisticas_autores.html])**
+
+Muestra estadísticas agrupadas por autor, incluyendo el número total de artículos publicados y la fecha del más reciente.
+
+*Requisitos cumplidos:*  
+- Uso de annotate() para realizar agregaciones agrupadas.  
+- Agrupación por autor mediante values('autor__nombre').  
+- Cálculo de Count() y Max() sobre los artículos asociados a cada autor.  
+- Consulta SQL equivalente comentada.  
+- Ordenación descendente por número de artículos. 
+- Manejo de casos sin datos con bloque empty.  
+- Integración en el índice principal para facilitar pruebas.
+

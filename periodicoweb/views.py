@@ -108,10 +108,10 @@ def buscar_articulos(request, criterio):
     -SQL-
 
     articulos = (Articulo.objects.raw(SELECT a.*
-    FROM periodicoweb_articulo a
-    WHERE a.titulo LIKE '%<criterio>%'
-    OR a.contenido LIKE '%<criterio>%'
-    ORDER BY a.publicado_en DESC)
+    + FROM periodicoweb_articulo a
+    + WHERE a.titulo LIKE '%<criterio>%'
+    + OR a.contenido LIKE '%<criterio>%'
+    + ORDER BY a.publicado_en DESC)
     )
     """
     
@@ -130,11 +130,11 @@ def estadisticas_articulos(request):
     -SQL-
 
     articulos = (Articulo.objects.raw(SELECT 
-    COUNT(*) AS total_articulos,
-    AVG(LENGTH(contenido)) AS promedio_longitud,
-    MAX(LENGTH(contenido)) AS max_longitud,
-    MIN(LENGTH(contenido)) AS min_longitud
-    FROM periodicoweb_articulo)
+    + COUNT(*) AS total_articulos,
+    + AVG(LENGTH(contenido)) AS promedio_longitud,
+    + MAX(LENGTH(contenido)) AS max_longitud,
+    + MIN(LENGTH(contenido)) AS min_longitud
+    + FROM periodicoweb_articulo)
     )
     """
     articulos = Articulo.objects.annotate(longitud=Length('contenido'))
@@ -146,3 +146,28 @@ def estadisticas_articulos(request):
     )
 
     return render(request, 'articulos/estadisticas_articulos.html', {'estadisticas': estadisticas})
+
+"""
+URL 7: Muestra las estadisticas de articulos agrupadas por autor.
+"""
+
+def estadisticas_autores(request):
+    """
+    -SQL-
+
+    articulos = (SELECT autor_id,
+    + COUNT(*) AS total_articulos,
+    + MAX(publicado_en) AS ultima_publicacion
+    + FROM periodicoweb_articulo
+    + GROUP BY autor_id
+    + ORDER BY total_articulos DESC)
+    )
+    """
+    
+    autores = (
+        Articulo.objects.values('autor__nombre')
+        .annotate(total_articulos=Count('id'), ultima_publicacion=Max('publicado_en'))
+        .order_by('-total_articulos')
+    )
+
+    return render(request, 'articulos/estadisticas_autores.html', {'autores': autores})

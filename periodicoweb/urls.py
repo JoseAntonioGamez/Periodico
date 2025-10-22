@@ -9,4 +9,5 @@ urlpatterns = [
     re_path(r'^articulos/seccion/(?P<nombre>[\w-]+)/$', views.articulos_por_seccion, name='articulos_por_seccion'),
     path('articulos/busqueda/<str:criterio>/', views.buscar_articulos, name='buscar_articulos'),
     path('articulos/estadisticas/', views.estadisticas_articulos, name='estadisticas_articulos'),
+    path('autores/estadisticas/', views.estadisticas_autores, name='estadisticas_autores'),
 ]
