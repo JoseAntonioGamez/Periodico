@@ -99,7 +99,7 @@ def articulos_por_seccion(request, nombre):
     return render(request, 'articulos/articulos_por_seccion.html', {'articulos': articulos, 'nombre': nombre})
 
 """
-URL 5: Muestra los articulos filtrando por el nombre de la sección.
+URL 5: Muestra los articulos que su titulo o contenido tenga el texto indicado.
 """
 
 def buscar_articulos(request, criterio):
