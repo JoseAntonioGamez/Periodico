@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Articulo
-from django.db.models import Q
+from django.db.models import Q, Avg, Count, Max, Min
+from django.db.models.functions import Length
 
 # Create your views here.
 def post_list(request):
@@ -99,7 +100,7 @@ def articulos_por_seccion(request, nombre):
     return render(request, 'articulos/articulos_por_seccion.html', {'articulos': articulos, 'nombre': nombre})
 
 """
-URL 5: Muestra los articulos filtrando por el nombre de la sección.
+URL 5: Muestra los articulos que su titulo o contenido tenga el texto indicado.
 """
 
 def buscar_articulos(request, criterio):
@@ -119,3 +120,29 @@ def buscar_articulos(request, criterio):
         .order_by('-publicado_en')
     
     return render(request, 'articulos/buscar_articulos.html', {'articulos': articulos, 'criterio': criterio})
+
+"""
+URL 6: Calcula estadisticas sobre los articulos publicados, como la cantidad total, promedio, máximo y mínimo de longitud de contenido.
+"""
+
+def estadisticas_articulos(request):
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT 
+    COUNT(*) AS total_articulos,
+    AVG(LENGTH(contenido)) AS promedio_longitud,
+    MAX(LENGTH(contenido)) AS max_longitud,
+    MIN(LENGTH(contenido)) AS min_longitud
+    FROM periodicoweb_articulo)
+    )
+    """
+    articulos = Articulo.objects.annotate(longitud=Length('contenido'))
+    estadisticas = articulos.aggregate(
+        total_articulos=Count('id'),
+        promedio_longitud=Avg('longitud'),
+        max_longitud=Max('longitud'),
+        min_longitud=Min('longitud')
+    )
+
+    return render(request, 'articulos/estadisticas_articulos.html', {'estadisticas': estadisticas})
