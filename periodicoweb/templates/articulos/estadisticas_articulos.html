@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas de Artículos</title>
+</head>
+<body>
+    <h1>Estadísticas Generales de Artículos</h1>
+    <ul>
+        <li>Total de artículos: {{ estadisticas.total_articulos }}</li>
+        <li>Promedio de longitud del contenido: {{ estadisticas.promedio_longitud|floatformat:2 }} caracteres</li>
+        <li>Máxima longitud de contenido: {{ estadisticas.max_longitud }} caracteres</li>
+        <li>Mínima longitud de contenido: {{ estadisticas.min_longitud }} caracteres</li>
+    </ul>
+</body>
+</html>

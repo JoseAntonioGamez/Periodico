@@ -64,3 +64,15 @@ Busca artículos cuyo título o contenido contengan un texto determinado (parám
 - Página funcional mostrando título, autor, sección y fecha.
 - Manejo de casos donde no se encuentran resultados.
 - Integración en el índice principal para facilitar pruebas.
+
+**(nombre: estadisticas_articulos (URL6) [estadisticas_articulos.html])**
+
+Muestra estadísticas agregadas sobre los artículos, incluyendo la longitud del contenido.
+
+*Requisitos cumplidos:*  
+- Uso combinado de annotate() y aggregate() para generar estadísticas desde la base de datos.  
+- Uso de la función Length() de django.db.models.functions para calcular la longitud del campo contenido.  
+- Cálculo de Count, Avg, Max y Min a partir de esa longitud.  
+- Consulta SQL equivalente comentada en la vista.  
+- Visualización en plantilla con formato legible y redondeo de decimales.  
+- Integración en el índice principal para facilitar pruebas.
