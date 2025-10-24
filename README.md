@@ -112,3 +112,15 @@ Muestra los últimos 5 artículos ordenados por fecha de publicación de forma d
 - Optimización con select_related para obtener datos relacionados (autor y sección).  
 - Uso de order_by y limit para obtener solo los últimos 5 registros.
 - Integración en el índice principal para facilitar pruebas.
+
+**(nombre: articulos_con_etiquetas (URL10) [articulos_con_etiquetas.html])**
+
+Muestra los artículos que tienen etiquetas asociadas mediante su relación ManyToMany.
+
+*Requisitos cumplidos:*  
+- Uso de prefetch_related para optimizar la carga de la relación ManyToMany.  
+- Acceso a las etiquetas relacionadas mediante articuloetiqueta_set.  
+- Combinación de select_related para traer autor y sección (ManyToOne).  
+- Filtro con isnull=False para mostrar solo los artículos con etiquetas.
+- Uso de order_by() y distinct() para mejorar desempeño y evitar duplicados.  
+- Integración en el índice principal para facilitar pruebas.

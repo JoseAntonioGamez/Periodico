@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Articulo, Seccion
-from django.db.models import Q, Avg, Count, Max, Min
+from .models import Articulo, Seccion, Etiqueta
+from django.db.models import Q, Avg, Count, Max, Min, Prefetch
 from django.db.models.functions import Length
 
 # Create your views here.
@@ -206,14 +206,42 @@ def ultimos_articulos(request):
     -SQL-
 
     articulos = (Articulo.objects.raw(SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
-    FROM periodicoweb_articulo a
-    LEFT JOIN periodicoweb_autor au ON a.autor_id = au.id
-    LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
-    ORDER BY a.publicado_en DESC
-    LIMIT 5)
+    + FROM periodicoweb_articulo a
+    + LEFT JOIN periodicoweb_autor au ON a.autor_id = au.id
+    + LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+    + ORDER BY a.publicado_en DESC
+    + LIMIT 5)
     )
     """
     
     articulos = Articulo.objects.select_related('autor', 'seccion').order_by('-publicado_en')[:5]
 
     return render(request, 'articulos/ultimos_articulos.html', {'articulos': articulos})
+
+"""
+URL 10: Muestra los artículos que no tienen etiquetas asociadas.
+"""
+
+def articulos_con_etiquetas(request):
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT DISTINCT a.*
+    + FROM periodicoweb_articulo a
+    + JOIN periodicoweb_articulo_etiquetas ae ON ae.articulo_id = a.id
+    + JOIN periodicoweb_etiqueta e ON e.id = ae.etiqueta_id
+    + ORDER BY a.publicado_en DESC)
+    )
+    """
+    
+    etiquetas_prefetch = Prefetch('articuloetiqueta_set__etiqueta', queryset=Etiqueta.objects.all())  
+
+    articulos = (
+        Articulo.objects.prefetch_related(etiquetas_prefetch)
+        .filter(articuloetiqueta__isnull=False)
+        .select_related('autor', 'seccion')
+        .order_by('-publicado_en')
+        .distinct()[:10]
+    )
+
+    return render(request, 'articulos/articulos_con_etiquetas.html', {'articulos': articulos})

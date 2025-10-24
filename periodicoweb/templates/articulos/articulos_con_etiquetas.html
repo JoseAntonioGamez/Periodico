@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Artículos con Etiquetas</title>
+</head>
+<body>
+    <h1>Artículos con etiquetas</h1>
+
+    {% if articulos %}
+        {% for articulo in articulos %}
+            <div>
+                <p><strong>Título:</strong> {{ articulo.titulo }}</p>
+                <p><strong>Autor:</strong> {{ articulo.autor.nombre }}</p>
+                <p><strong>Sección:</strong>
+                    {% if articulo.seccion %}
+                        {{ articulo.seccion.nombre }}
+                    {% else %}
+                        Sin sección
+                    {% endif %}
+                </p>
+                <p><strong>Etiquetas:</strong>
+                    {% for relacion in articulo.articuloetiqueta_set.all %}
+                        {{ relacion.etiqueta.nombre }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        Ninguna
+                    {% endfor %}
+                </p>
+                <p><strong>Fecha:</strong> {{ articulo.publicado_en|date:"d/m/Y" }}</p>
+            </div>
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>No hay artículos con etiquetas.</p>
+    {% endif %}
+</body>
+</html>
+
+

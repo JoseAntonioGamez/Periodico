@@ -12,4 +12,5 @@ urlpatterns = [
     path('autores/estadisticas/', views.estadisticas_autores, name='estadisticas_autores'),
     path('secciones/estadisticas/', views.estadisticas_secciones, name='estadisticas_secciones'),
     path('ultimos_articulos/', views.ultimos_articulos, name='ultimos_articulos'),
+    path('articulos/con_etiquetas/', views.articulos_con_etiquetas, name='articulos_con_etiquetas'),
 ]
