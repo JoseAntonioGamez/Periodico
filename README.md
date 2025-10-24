@@ -90,3 +90,16 @@ Muestra estadísticas agrupadas por autor, incluyendo el número total de artíc
 - Manejo de casos sin datos con bloque empty.  
 - Integración en el índice principal para facilitar pruebas.
 
+**(nombre: estadisticas_secciones (URL8) [estadisticas_secciones.html])**
+
+Muestra estadísticas agrupadas por sección.
+
+*Requisitos cumplidos:*  
+- Uso de annotate() para agrupar por sección.  
+- Cálculo de Count para total de artículos por sección.  
+- Cálculo de Avg sobre la longitud del contenido de los artículos.  
+- Uso de la función Length para medir longitud del contenido.  
+- Orden descendente por total de artículos.  
+- Manejo de casos sin datos con mensaje informativo.  
+- Integración en el índice principal para facilitar pruebas.
+

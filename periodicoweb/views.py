@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Articulo
+from .models import Articulo, Seccion
 from django.db.models import Q, Avg, Count, Max, Min
 from django.db.models.functions import Length
 
@@ -171,3 +171,28 @@ def estadisticas_autores(request):
     )
 
     return render(request, 'articulos/estadisticas_autores.html', {'autores': autores})
+
+"""
+URL 8: Muestra estadísticas por sección, usando annotate para el calculo total de articulos y promedio de longitud del contenido de artículos para cada sección.
+"""
+
+def estadisticas_secciones(request):
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT s.nombre,
+    + COUNT(a.id) AS total_articulos,
+    + AVG(LENGTH(a.contenido)) AS promedio_longitud
+    + FROM periodicoweb_seccion s
+    + LEFT JOIN periodicoweb_articulo a ON a.seccion_id = s.id
+    + GROUP BY s.nombre
+    + ORDER BY total_articulos DESC)
+    )
+    """
+    
+    secciones = Seccion.objects.annotate(
+        total_articulos=Count('articulo'),
+        promedio_longitud=Avg(Length('articulo__contenido'))
+    ).order_by('-total_articulos')
+
+    return render(request, 'articulos/estadisticas_secciones.html', {'secciones': secciones})

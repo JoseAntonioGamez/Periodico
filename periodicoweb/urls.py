@@ -10,4 +10,6 @@ urlpatterns = [
     path('articulos/busqueda/<str:criterio>/', views.buscar_articulos, name='buscar_articulos'),
     path('articulos/estadisticas/', views.estadisticas_articulos, name='estadisticas_articulos'),
     path('autores/estadisticas/', views.estadisticas_autores, name='estadisticas_autores'),
+    path('secciones/estadisticas/', views.estadisticas_secciones, name='estadisticas_secciones'),
+    
 ]
