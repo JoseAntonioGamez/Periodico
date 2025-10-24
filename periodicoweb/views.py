@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Articulo, Seccion, Etiqueta
 from django.db.models import Q, Avg, Count, Max, Min, Prefetch
 from django.db.models.functions import Length
+from django.views.defaults import page_not_found
 
 # Create your views here.
 def post_list(request):
@@ -245,3 +246,15 @@ def articulos_con_etiquetas(request):
     )
 
     return render(request, 'articulos/articulos_con_etiquetas.html', {'articulos': articulos})
+
+def mi_error_400(request, exception=None):
+    return render(request, 'errores/400.html', None, None, 400)
+
+def mi_error_403(request, exception=None):
+    return render(request, 'errores/403.html', None, None, 403)
+
+def mi_error_404(request, exception=None):
+    return render(request, 'errores/404.html', None, None, 404)
+
+def mi_error_500(request):
+    return render(request, 'errores/500.html', None, None, 500)

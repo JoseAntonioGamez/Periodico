@@ -22,3 +22,9 @@ urlpatterns = [
     path('', include('periodicoweb.urls')),
     path("__debug__/", include("debug_toolbar.urls"))
 ]
+
+handler400 = 'periodicoweb.views.mi_error_400'
+handler403 = 'periodicoweb.views.mi_error_403'
+handler404 = 'periodicoweb.views.mi_error_404'
+handler500 = 'periodicoweb.views.mi_error_500'
+

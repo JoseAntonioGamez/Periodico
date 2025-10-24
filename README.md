@@ -124,3 +124,12 @@ Muestra los artículos que tienen etiquetas asociadas mediante su relación Many
 - Filtro con isnull=False para mostrar solo los artículos con etiquetas.
 - Uso de order_by() y distinct() para mejorar desempeño y evitar duplicados.  
 - Integración en el índice principal para facilitar pruebas.
+
+**(nombre: ERRORES(400, 403, 404, 500) [400.html] [403.html] [404.html] [500.html])**
+
+Uso de páginas de errores para el modo Producción.
+
+**(Explicacion adicional del `get_object_or_404` usado el la URL2)**
+
+Es una función de Django que busca un objeto en la base de datos segun los criterios que le pasas, es decir, si encuentra el objeto, lo devuelve, si no, lanza el error 404, pero básicamente es lo mismo que las opciones usadas para error explicadas en las diapositivas.
+-
