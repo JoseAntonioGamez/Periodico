@@ -196,3 +196,24 @@ def estadisticas_secciones(request):
     ).order_by('-total_articulos')
 
     return render(request, 'articulos/estadisticas_secciones.html', {'secciones': secciones})
+
+"""
+URL 9: Muestra los útimos 5 artículos por fecha de publicación descendente, incluyendo datos de autor y sección.
+"""
+
+def ultimos_articulos(request):
+    """
+    -SQL-
+
+    articulos = (Articulo.objects.raw(SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
+    FROM periodicoweb_articulo a
+    LEFT JOIN periodicoweb_autor au ON a.autor_id = au.id
+    LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+    ORDER BY a.publicado_en DESC
+    LIMIT 5)
+    )
+    """
+    
+    articulos = Articulo.objects.select_related('autor', 'seccion').order_by('-publicado_en')[:5]
+
+    return render(request, 'articulos/ultimos_articulos.html', {'articulos': articulos})

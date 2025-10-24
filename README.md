@@ -103,3 +103,12 @@ Muestra estadísticas agrupadas por sección.
 - Manejo de casos sin datos con mensaje informativo.  
 - Integración en el índice principal para facilitar pruebas.
 
+**(nombre: ultimos_articulos (URL9) [ultimos_articulos.html])**
+
+Muestra los últimos 5 artículos ordenados por fecha de publicación de forma descendente.
+
+*Requisitos cumplidos:*  
+- Uso de parámetro n/a, consulta directa sin parámetros.  
+- Optimización con select_related para obtener datos relacionados (autor y sección).  
+- Uso de order_by y limit para obtener solo los últimos 5 registros.
+- Integración en el índice principal para facilitar pruebas.

@@ -11,5 +11,5 @@ urlpatterns = [
     path('articulos/estadisticas/', views.estadisticas_articulos, name='estadisticas_articulos'),
     path('autores/estadisticas/', views.estadisticas_autores, name='estadisticas_autores'),
     path('secciones/estadisticas/', views.estadisticas_secciones, name='estadisticas_secciones'),
-    
+    path('ultimos_articulos/', views.ultimos_articulos, name='ultimos_articulos'),
 ]
