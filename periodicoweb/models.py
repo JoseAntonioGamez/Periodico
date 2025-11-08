@@ -56,7 +56,7 @@ class Etiqueta(models.Model):
     activa = models.BooleanField(default=True)
 
 class ArticuloEtiqueta(models.Model):
-    articulo = models.ForeignKey(Articulo, on_delete=models.CASCADE)
+    articulo = models.ForeignKey(Articulo, on_delete=models.CASCADE, related_name='articulo_etiquetas')
     etiqueta = models.ForeignKey(Etiqueta, on_delete=models.CASCADE)
     relevancia = models.FloatField(default=1.0)
     fecha_asignacion = models.DateField(null=True)
