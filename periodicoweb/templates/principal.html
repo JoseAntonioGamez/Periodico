@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<html lang="es">
+<head>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>{% block title %}Mi Proyecto{% endblock %}</title>
+</head>
+<body>
+
+  {% include 'navbar.html' %}
+
+  <header>
+    {% block header %}
+    <!-- Aquí va la cabecera de cada página -->
+        <img src="{% static 'images/periodico.jpg' %}" alt="Logotipo Mi Proyecto" style="height:50px;">
+        {% block header %}{% endblock %}
+    {% endblock %}
+  </header>
+
+  <main>
+    {% block content %}
+    <!-- Aquí va el contenido principal de cada página -->
+    
+    {% endblock %}
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>
