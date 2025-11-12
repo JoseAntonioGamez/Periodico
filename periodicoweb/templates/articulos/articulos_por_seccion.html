@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <title>Artículos en sección {{ nombre }}</title>
-</head>
-<body>
-    <h1>Artículos en la sección: {{ nombre }}</h1>
-    <ul>
-        {% for articulo in articulos %}
-            <li>
-                <strong>{{ articulo.titulo }}</strong> - Autor: {{ articulo.autor.nombre }} - Fecha: {{ articulo.publicado_en|date:"d/m/Y" }}
-            </li>
-        {% empty %}
-            <li>No se encontraron artículos en esta sección.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Artículos en sección {{ nombre }}{% endblock %}
+{% block header %}<h1>Artículos en la sección: {{ nombre }}</h1>{% endblock %}
+{% block content %}
+<ul>
+  {% for articulo in articulos %}
+    {% include "articulos/articulo_item.html" %}
+  {% empty %}
+    <li>No se encontraron artículos en esta sección.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+
 

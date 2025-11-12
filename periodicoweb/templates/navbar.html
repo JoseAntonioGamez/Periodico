@@ -1,9 +1,15 @@
-<!-- templates/partials/navbar.html -->
-<nav class="navbar">
-  <ul class="navbar__lista">
-    <li class="navbar__item"><a href="{% url 'home' %}">Inicio</a></li>
-    <li class="navbar__item"><a href="{% url 'articulos' %}">Artículos</a></li>
-    <li class="navbar__item"><a href="{% url 'autores' %}">Autores</a></li>
-    <li class="navbar__item"><a href="{% url 'contacto' %}">Contacto</a></li>
+<nav>
+  <ul>
+    <li><a href="{% url 'lista_articulos' %}">Lista de Artículos</a></li>
+    <li><a href="{% url 'detalle_articulo' id=1 %}">Detalle artículo (ID 1)</a></li>
+    <li><a href="{% url 'articulos_por_fecha' anio=2025 mes=10 %}">Artículos Octubre 2025</a></li>
+    <li><a href="{% url 'articulos_por_seccion' nombre='DEP' %}">Sección DEPORTES</a></li>
+    <li><a href="{% url 'buscar_articulos' criterio='Política' %}">Buscar sobre Política</a></li>
+    <li><a href="{% url 'estadisticas_articulos' %}">Estadísticas Generales</a></li>
+    <li><a href="{% url 'estadisticas_autores' %}">Estadísticas por Autor</a></li>
+    <li><a href="{% url 'estadisticas_secciones' %}">Estadísticas por Sección</a></li>
+    <li><a href="{% url 'ultimos_articulos' %}">Últimos 5 artículos</a></li>
+    <li><a href="{% url 'articulos_con_etiquetas' %}">Artículos con etiquetas</a></li>
   </ul>
 </nav>
+

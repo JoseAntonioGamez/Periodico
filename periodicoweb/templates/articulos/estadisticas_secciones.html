@@ -1,23 +1,17 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <title>Estadísticas por Sección</title>
-</head>
-<body>
-    <h1>Estadísticas de Artículos por Sección</h1>
-
-    {% if secciones %}
-        {% for s in secciones %}
-            <div>
-                <p><strong>Sección:</strong> {{ s.nombre }}</p>
-                <p><strong>Total de artículos:</strong> {{ s.total_articulos }}</p>
-                <p><strong>Promedio longitud contenido:</strong> {{ s.promedio_longitud|floatformat:2 }} caracteres</p>
-            </div>
-            <hr>
-        {% endfor %}
-    {% else %}
-        <p>No se encontraron secciones con artículos.</p>
-    {% endif %}
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Estadísticas por Sección{% endblock %}
+{% block header %}<h1>Estadísticas de Artículos por Sección</h1>{% endblock %}
+{% block content %}
+{% if secciones %}
+  {% for s in secciones %}
+    <div>
+      <p><strong>Sección:</strong> {{ s.nombre|capfirst }}</p>
+      <p><strong>Total de artículos:</strong> {{ s.total_articulos }}</p>
+      <p><strong>Promedio longitud contenido:</strong> {{ s.promedio_longitud|floatformat:2 }} caracteres</p>
+    </div>
+    <hr>
+  {% endfor %}
+{% else %}
+  <p>No se encontraron secciones con artículos.</p>
+{% endif %}
+{% endblock %}

@@ -1,22 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Resultados de "{{ criterio }}"</title>
-</head>
-<body>
-    <h1>Resultados de búsqueda para "{{ criterio }}"</h1>
-    <ul>
-        {% for articulo in articulos %}
-            <li>
-                <strong>{{ articulo.titulo }}</strong><br>
-                Autor: {{ articulo.autor.nombre }}<br>
-                Sección: {% if articulo.seccion %}{{ articulo.seccion.nombre }}{% else %}Sin sección{% endif %}<br>
-                Fecha: {{ articulo.publicado_en|date:"d/m/Y" }}
-            </li>
-        {% empty %}
-            <li>No se encontraron artículos relacionados con "{{ criterio }}".</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Resultados de "{{ criterio }}"{% endblock %}
+{% block header %}<h1>Resultados de búsqueda para "{{ criterio }}"</h1>{% endblock %}
+{% block content %}
+<ul>
+  {% for articulo in articulos %}
+    {% include "articulos/articulo_item.html" %}
+  {% empty %}
+    <li>No se encontraron artículos relacionados con "{{ criterio }}".</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+

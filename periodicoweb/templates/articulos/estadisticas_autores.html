@@ -1,24 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Estadísticas por Autor</title>
-</head>
-<body>
-    <h1>Estadísticas de Artículos por Autor</h1>
-
-    {% if autores %}
-        {% for a in autores %}
-            <div>
-                <p><strong>Autor:</strong> {{ a.autor__nombre }}</p>
-                <p><strong>Total de artículos:</strong> {{ a.total_articulos }}</p>
-                <p><strong>Última publicación:</strong> {{ a.ultima_publicacion|date:"d/m/Y" }}</p>
-            </div>
-            <hr>
-        {% endfor %}
-    {% else %}
-        <p>No se encontraron autores con artículos.</p>
-    {% endif %}
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Estadísticas por Autor{% endblock %}
+{% block header %}<h1>Estadísticas de Artículos por Autor</h1>{% endblock %}
+{% block content %}
+{% if autores %}
+  {% for a in autores %}
+    <div>
+      <p><strong>Autor:</strong> {{ a.autor__nombre|title }}</p>
+      <p><strong>Total de artículos:</strong> {{ a.total_articulos }}</p>
+      <p><strong>Última publicación:</strong> {{ a.ultima_publicacion|date:"d/m/Y" }}</p>
+    </div>
+    <hr>
+  {% endfor %}
+{% else %}
+  <p>No se encontraron autores con artículos.</p>
+{% endif %}
+{% endblock %}
 
