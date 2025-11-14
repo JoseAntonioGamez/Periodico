@@ -2,17 +2,18 @@
 {% block title %}Estadísticas por Autor{% endblock %}
 {% block header %}<h1>Estadísticas de Artículos por Autor</h1>{% endblock %}
 {% block content %}
-{% if autores %}
+{% if autores and autores|length > 0 %}
   {% for a in autores %}
-    <div>
-      <p><strong>Autor:</strong> {{ a.autor__nombre|title }}</p>
-      <p><strong>Total de artículos:</strong> {{ a.total_articulos }}</p>
-      <p><strong>Última publicación:</strong> {{ a.ultima_publicacion|date:"d/m/Y" }}</p>
-    </div>
-    <hr>
+    {% if a.autor__nombre != "" and a.total_articulos > 0 %}
+      <div>
+        <p><strong>Autor:</strong> {{ a.autor__nombre|title }}</p>
+        <p><strong>Total de artículos:</strong> {{ a.total_articulos }}</p>
+        <p><strong>Última publicación:</strong> {{ a.ultima_publicacion|date:"d/m/Y" }}</p>
+      </div>
+      <hr>
+    {% endif %}
   {% endfor %}
 {% else %}
   <p>No se encontraron autores con artículos.</p>
 {% endif %}
 {% endblock %}
-

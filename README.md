@@ -44,41 +44,50 @@ Este documento detalla todos los requisitos funcionales y técnicos que se han c
 
 ---
 
-# Uso de Template Filters
+### Template Tags usados y archivos donde se encuentran
 
-| Filtro        | Función                                     | Uso concreto                   |
-|---------------|--------------------------------------------|-------------------------------|
-| `date`        | Formato de fechas legible                   | Fechas de publicación          |
-| `floatformat` | Redondeo y formato numérico                 | Estadísticas con decimales     |
-| `truncatewords` | Resumen de texto a X palabras             | Previews de artículos          |
-| `capfirst`    | Primer letra en mayúscula                    | Títulos y nombres              |
-| `upper`       | Texto en mayúsculas                          | Nombres de autor               |
-| `default_if_none` | Valor por defecto si dato nulo            | Secciones sin nombre           |
-| `linebreaks`  | Convierte saltos de línea en etiquetas HTML | Contenido de artículos formateado |
-| `length`      | Conteo de elementos o caracteres             | Longitudes y totales en estadísticas |
-| `lower`       | Texto en minúsculas                          | Etiquetas y criterios de búsqueda |
-| `intcomma`    | Separador de miles en números grandes        | Estadísticas numéricas (requiere `humanize`)  |
+| Template Tag | Descripción                                  | Archivos donde se usan                                                                                         |
+|--------------|----------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `extends`    | Herencia de plantilla base                    | index.html, articulos.html, detalle.html, estadisticas_articulos.html, estadisticas_autores.html, estadisticas_secciones.html, ultimos_articulos.html, articulos_por_seccion.html, articulos_por_fecha.html, buscar_articulos.html, articulos_con_etiquetas.html   |
+| `block`      | Define bloques reutilizables                  | base.html (definición), todas las plantillas hijas mencionadas arriba (sobreescritura)                         |
+| `include`    | Incluye fragmentos reutilizables              | base.html (navbar.html, footer.html), archivos de listas y búsqueda: articulos.html, articulos_con_etiquetas.html, articulos_por_fecha.html, articulos_por_seccion.html, buscar_articulos.html, ultimos_articulos.html           |
+| `for`        | Itera sobre listas o querysets                 | articulos.html, articulos_con_etiquetas.html, articulos_por_fecha.html, articulos_por_seccion.html, buscar_articulos.html, ultimos_articulos.html, estadisticas_autores.html, estadisticas_secciones.html                      |
+| `empty`      | Rama alternativa para bucles vacíos            | Artículos y búsquedas relacionados con `for`                                                                   |
+| `if/else`    | Condicionales para mostrar contenido dinámico | estadisticas_autores.html, estadisticas_secciones.html, articulos.html, ultimos_articulos.html                    |
+| `load`       | Importa librerías para filtros especiales      | base.html (`static`), estadisticas_articulos.html (`humanize`)                                                  |
+| `url`        | Genera URLs dinámicas con nombres de ruta      | navbar.html                                                                                                     |
+| `static`     | Acceso a archivos estáticos                     | base.html, navbar.html, footer.html                                                                             |
 
-# Uso de Template Tags
+---
 
-| Tag           | Función                                      | Ejemplo concreto               |
-|---------------|---------------------------------------------|-------------------------------|
-| `{% if %}`    | Condicionales para mostrar contenido         | Manejo de valores nulos, filtros de sección |
-| `{% else %}`  | Alternativa en condicional                    | Combina con `{% if %}`          |
-| `{% for %}`   | Iteración sobre colecciones                   | Listado de artículos            |
-| `{% empty %}` | Mensaje cuando listas están vacías            | Gestión de listas sin resultados|
-| `{% include %}` | Reutilización de fragmentos                   | Inclusión de `articulo_item.html` para modularización |
-| `{% extends %}` | Hereda plantilla base                         | Todas las vistas con diseño común |
-| `{% load %}`  | Carga librerías de filtros o tags             | Carga de `static` y `humanize`  |
+### Operadores `if` usados y archivos donde se emplean
 
-## Operadores usados en `{% if %}`
+| Operador | Descripción             | Archivos                                                       |
+|----------|-------------------------|----------------------------------------------------------------|
+| `and`    | Y lógico                | articulos.html                                                  |
+| `not`    | Negación lógica         | articulos.html                                                  |
+| `==`     | Igualdad                | estadisticas_autores.html                                       |
+| `>`      | Mayor que               | estadisticas_autores.html                                       |
+| `!=`     | Distinto de             | estadisticas_autores.html                                       |
+| `or`     | O lógico (uso posible)  | Varias plantillas según @README (posible uso en búsquedas)      |
 
-| Operador | Función                       | Ejemplo                       |
-|----------|------------------------------|-------------------------------|
-| `==`     | Igualdad                     | `{% if seccion == "DEP" %}`    |
-| `!=`     | Desigualdad                  | `{% if nombre != None %}`      |
-| `<`      | Menor que                   | `{% if contador < 10 %}`       |
-| `>`      | Mayor que                   | `{% if longitud > 100 %}`      |
-| `not`    | Negación                    | `{% if not articulo.seccion %}` |
+---
 
+### Template Filters usados y archivos donde se aplican
 
+| Filter          | Descripción                                | Archivos                                                                                                                |
+|-----------------|--------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `capfirst`      | Pone la primera letra en mayúscula         | articulo_item.html, estadisticas_secciones.html                                                                          |
+| `upper`         | Convierte en mayúsculas                     | articulo_item.html                                                                                                       |
+| `lower`         | Convierte en minúsculas                     | articulos_con_etiquetas.html                                                                                            |
+| `default`       | Valor por defecto si campo vacío            | articulo_item.html, articulos_por_fecha.html                                                                             |
+| `default_if_none`| Valor por defecto si campo es None          | articulo_item.html, articulos_por_fecha.html, articulos_por_seccion.html                                                  |
+| `title`         | Capitaliza todas las palabras               | articulos_con_etiquetas.html, detalle.html                                                                              |
+| `truncatewords` | Limita número de palabras                   | articulo_item.html                                                                                                       |
+| `date`          | Formatea fecha                             | articulo_item.html, estadisticas_autores.html, estadisticas_secciones.html, detalle.html, articulos_por_fecha.html        |
+| `length`        | Obtiene longitud de string/lista           | estadisticas_articulos.html, estadisticas_autores.html                                                                   |
+| `floatformat`   | Valor numérico con decimales formateados   | estadisticas_articulos.html, estadisticas_secciones.html                                                                 |
+| `intcomma`      | Añade comas como separador de miles         | estadisticas_articulos.html                                                                                              |
+| `linebreaks`    | Convierte saltos de línea a `<br>`          | detalle.html                                                                                                             |
+
+---

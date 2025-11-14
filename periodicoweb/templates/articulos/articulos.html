@@ -5,14 +5,12 @@
 
 {% block content %}
 <ul>
-  {% for articulo in articulos %}
-    {% include "articulos/articulo_item.html" %}
-  {% empty %}
+  {% if articulos and not articulos|length == 0 %}
+    {% for articulo in articulos %}
+      {% include "articulos/articulo_item.html" %}
+    {% endfor %}
+  {% else %}
     <li>No hay artículos disponibles.</li>
-  {% endfor %}
+  {% endif %}
 </ul>
 {% endblock %}
-
-
-
-
