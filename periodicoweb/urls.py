@@ -13,4 +13,9 @@ urlpatterns = [
     path('secciones/estadisticas/', views.estadisticas_secciones, name='estadisticas_secciones'),
     path('ultimos_articulos/', views.ultimos_articulos, name='ultimos_articulos'),
     path('articulos/con_etiquetas/', views.articulos_con_etiquetas, name='articulos_con_etiquetas'),
+
+    path('autores/', views.autor_list, name='autor_list'),
+    path('autores/nuevo/', views.autor_create, name='autor_create'),
+    path('autores/<int:pk>/editar/', views.autor_update, name='autor_update'),
+    path('autores/<int:pk>/eliminar/', views.autor_delete, name='autor_delete'),
 ]

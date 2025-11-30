@@ -7,7 +7,8 @@ class Autor(models.Model):
     bio = models.TextField(blank=True)
     edad = models.PositiveIntegerField(default=18, null=True)
     sueldo = models.DecimalField(max_digits=7, decimal_places=2, default=1200.00)
-    es_redactor = models.BooleanField(default=True, editable=False)
+    es_redactor = models.BooleanField(default=True, editable=True)
+    foto = models.ImageField(upload_to='autores_fotos/', null=True, blank=True)
 
 class PerfilAutor(models.Model):
     autor = models.OneToOneField(Autor, on_delete=models.CASCADE)

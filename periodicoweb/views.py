@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Articulo, Seccion, Etiqueta
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import *
 from django.db.models import Q, Avg, Count, Max, Min, Prefetch
 from django.db.models.functions import Length
 from django.shortcuts import render
 from django.views.defaults import page_not_found
+from .forms import *
 
 
 # Create your views here.
@@ -291,3 +293,81 @@ def mi_error_404(request, exception=None):
 
 def mi_error_500(request):
     return render(request, 'errores/500.html', None, None, 500)
+
+"""
+CRUD 1: Autor
+"""
+
+def autor_list(request):
+    # Búsqueda avanzada con 3 campos: nombre, edad, sueldo
+    query_nombre = request.GET.get('nombre', '').strip()
+    query_edad = request.GET.get('edad', '').strip()
+    query_sueldo = request.GET.get('sueldo', '').strip()
+
+    autores = Autor.objects.all()
+
+    if query_nombre:
+        autores = autores.filter(nombre__icontains=query_nombre)
+    if query_edad:
+        try:
+            autores = autores.filter(edad=int(query_edad))
+        except ValueError:
+            # si edad no es número, simplemente no filtramos por edad
+            pass
+    if query_sueldo:
+        try:
+            autores = autores.filter(sueldo=query_sueldo)
+        except ValueError:
+            pass
+
+    context = {
+        'autores': autores,
+        'query_nombre': query_nombre,
+        'query_edad': query_edad,
+        'query_sueldo': query_sueldo,
+    }
+    return render(request, 'autor/autor_list.html', context)
+
+
+def autor_create(request):
+    if request.method == 'POST':
+        form = AutorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('autor_list')
+    else:
+        form = AutorForm()
+
+    return render(request, 'autor/autor_form.html', {
+        'form': form,
+        'title': 'Crear autor',
+    })
+
+
+def autor_update(request, pk):
+    autor = get_object_or_404(Autor, pk=pk)
+
+    if request.method == 'POST':
+        form = AutorForm(request.POST, instance=autor)
+        if form.is_valid():
+            form.save()
+            return redirect('autor_list')
+    else:
+        form = AutorForm(instance=autor)
+
+    return render(request, 'autor/autor_form.html', {
+        'form': form,
+        'title': 'Editar autor',
+    })
+
+
+def autor_delete(request, pk):
+    autor = get_object_or_404(Autor, pk=pk)
+
+    if request.method == 'POST':
+        autor.delete()
+        return redirect('autor_list')
+
+    return render(request, 'autor/autor_confirm_delete.html', {
+        'autor': autor,
+    })
