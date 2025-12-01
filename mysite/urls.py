@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('periodicoweb.urls')),
     path("__debug__/", include("debug_toolbar.urls"))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler400 = 'periodicoweb.views.mi_error_400'
 handler403 = 'periodicoweb.views.mi_error_403'

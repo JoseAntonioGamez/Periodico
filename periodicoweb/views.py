@@ -299,7 +299,6 @@ CRUD 1: Autor
 """
 
 def autor_list(request):
-    # Búsqueda avanzada con 3 campos: nombre, edad, sueldo
     query_nombre = request.GET.get('nombre', '').strip()
     query_edad = request.GET.get('edad', '').strip()
     query_sueldo = request.GET.get('sueldo', '').strip()
@@ -308,17 +307,20 @@ def autor_list(request):
 
     if query_nombre:
         autores = autores.filter(nombre__icontains=query_nombre)
+
     if query_edad:
         try:
             autores = autores.filter(edad=int(query_edad))
         except ValueError:
-            # si edad no es número, simplemente no filtramos por edad
             pass
+
     if query_sueldo:
         try:
             autores = autores.filter(sueldo=query_sueldo)
         except ValueError:
             pass
+
+    autores = autores.order_by('nombre')  # orden explícito
 
     context = {
         'autores': autores,
@@ -331,9 +333,10 @@ def autor_list(request):
 
 def autor_create(request):
     if request.method == 'POST':
-        form = AutorForm(request.POST)
+        form = AutorForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            autor = form.save()
+            messages.success(request, f'Se ha creado el autor "{autor.nombre}" correctamente.')
             return redirect('autor_list')
     else:
         form = AutorForm()
@@ -343,14 +346,16 @@ def autor_create(request):
         'title': 'Crear autor',
     })
 
-
 def autor_update(request, pk):
-    autor = get_object_or_404(Autor, pk=pk)
-
+    autor = Autor.objects.filter(pk=pk).first()
+    if not autor:
+        messages.error(request, 'El autor no existe.')
+        return redirect('autor_list')
     if request.method == 'POST':
-        form = AutorForm(request.POST, instance=autor)
+        form = AutorForm(request.POST, request.FILES, instance=autor)
         if form.is_valid():
             form.save()
+            messages.success(request, f'Se ha actualizado el autor "{autor.nombre}" correctamente.')
             return redirect('autor_list')
     else:
         form = AutorForm(instance=autor)
@@ -362,12 +367,16 @@ def autor_update(request, pk):
 
 
 def autor_delete(request, pk):
-    autor = get_object_or_404(Autor, pk=pk)
-
-    if request.method == 'POST':
-        autor.delete()
+    autor = Autor.objects.filter(pk=pk).first()
+    if not autor:
+        messages.error(request, 'El autor no existe o ya ha sido eliminado.')
         return redirect('autor_list')
 
-    return render(request, 'autor/autor_confirm_delete.html', {
-        'autor': autor,
-    })
+    if request.method == 'POST':
+        nombre = autor.nombre
+        autor.delete()
+        messages.success(request, f'Se ha eliminado el autor "{nombre}".')
+        return redirect('autor_list')
+
+    # Si es GET, no borra; vuelve al listado
+    return redirect('autor_list')
