@@ -320,7 +320,7 @@ def autor_list(request):
         except ValueError:
             pass
 
-    autores = autores.order_by('nombre')  # orden explícito
+    autores = autores.order_by('nombre') 
 
     context = {
         'autores': autores,
@@ -377,6 +377,5 @@ def autor_delete(request, pk):
         autor.delete()
         messages.success(request, f'Se ha eliminado el autor "{nombre}".')
         return redirect('autor_list')
-
-    # Si es GET, no borra; vuelve al listado
+    
     return redirect('autor_list')
