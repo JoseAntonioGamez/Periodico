@@ -258,23 +258,36 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 - **capacidad:**  
   - Entero positivo, mínimo 1.  
 
+### CRUD Grupo
+
+- **nombre:**  
+  - Obligatorio, máximo 80 caracteres.  
+  - Único, excluyendo el registro actual al editar.  
+- **descripcion:**  
+  - Texto opcional.  
+- **creado_en:**  
+  - Fecha automática de creación, usada para búsquedas.  
+
 ---
 
 ## Widgets usados en los formularios
 
-| CRUD   | Campo        | Widget                  | Descripción del widget                          |
-|--------|--------------|-------------------------|------------------------------------------------|
-| Autor  | nombre       | TextInput               | Campo de texto simple para entrada corta       |
-| Autor  | bio          | Textarea                | Área de texto multilínea para descripciones    |
-| Autor  | edad         | NumberInput             | Campo para ingreso numérico                      |
-| Autor  | sueldo       | NumberInput             | Campo numérico con decimales                     |
-| Autor  | es_redactor  | CheckboxInput           | Casilla de verificación (booleano)               |
-| Autor  | foto         | ClearableFileInput      | Campo para subir o borrar archivos/imágenes     |
-| Evento | nombre       | TextInput               | Campo de texto corto para nombre                 |
-| Evento | lugar        | TextInput               | Campo de texto corto para ubicación o lugar     |
-| Evento | fecha        | DateInput               | Selector de fecha, permite escoger fechas        |
-| Evento | articulos    | SelectMultiple          | Selector múltiple para elegir varios artículos  |
-| Evento | capacidad    | NumberInput             | Campo numérico para capacidad                     |
+| CRUD   | Campo        | Widget                  | Descripción del widget                           |
+|--------|--------------|-------------------------|-------------------------------------------------|
+| Autor  | nombre       | TextInput               | Campo de texto simple para entrada corta        |
+| Autor  | bio          | Textarea                | Área de texto multilínea para descripciones     |
+| Autor  | edad         | NumberInput             | Campo para ingreso numérico                       |
+| Autor  | sueldo       | NumberInput             | Campo numérico con decimales                      |
+| Autor  | es_redactor  | CheckboxInput           | Casilla de verificación (booleano)                |
+| Autor  | foto         | ClearableFileInput      | Campo para subir o borrar archivos/imágenes      |
+| Evento | nombre       | TextInput               | Campo de texto corto para nombre                  |
+| Evento | lugar        | TextInput               | Campo de texto corto para ubicación o lugar      |
+| Evento | fecha        | DateInput               | Selector de fecha, permite escoger fechas         |
+| Evento | articulos    | SelectMultiple          | Selector múltiple para elegir varios artículos   |
+| Evento | capacidad    | NumberInput             | Campo numérico para capacidad                      |
+| Grupo  | nombre       | TextInput               | Campo de texto corto para nombre del grupo       |
+| Grupo  | descripcion  | Textarea                | Área de texto para descripción                     |
+| Grupo  | usuarios     | SelectMultiple          | Selector múltiple para seleccionar usuarios       |
 
 ---
 

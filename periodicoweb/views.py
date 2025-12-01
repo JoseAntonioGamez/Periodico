@@ -457,3 +457,83 @@ def evento_delete(request, pk):
         return redirect('evento_list')
 
     return redirect('evento_list')
+
+"""
+CRUD 3: Grupo
+"""
+
+def grupo_list(request):
+    query_nombre = request.GET.get('nombre', '').strip()
+    query_descripcion = request.GET.get('descripcion', '').strip()
+    query_creado_en = request.GET.get('creado_en', '').strip()
+
+    grupos = Grupo.objects.all()
+
+    if query_nombre:
+        grupos = grupos.filter(nombre__icontains=query_nombre)
+
+    if query_descripcion:
+        grupos = grupos.filter(descripcion__icontains=query_descripcion)
+
+    if query_creado_en:
+        try:
+            grupos = grupos.filter(creado_en=query_creado_en)
+        except ValueError:
+            pass
+
+    grupos = grupos.order_by('nombre')
+
+    context = {
+        'grupos': grupos,
+        'query_nombre': query_nombre,
+        'query_descripcion': query_descripcion,
+        'query_creado_en': query_creado_en,
+    }
+    return render(request, 'grupo/grupo_list.html', context)
+
+def grupo_create(request):
+    if request.method == 'POST':
+        form = GrupoForm(request.POST)
+        if form.is_valid():
+            grupo = form.save()
+            messages.success(request, f'Se ha creado el grupo "{grupo.nombre}" correctamente.')
+            return redirect('grupo_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = GrupoForm()
+
+    return render(request, 'grupo/grupo_form.html', {'form': form, 'title': 'Crear grupo'})
+
+def grupo_update(request, pk):
+    grupo = Grupo.objects.filter(pk=pk).first()
+    if not grupo:
+        messages.error(request, 'El grupo no existe.')
+        return redirect('grupo_list')
+
+    if request.method == 'POST':
+        form = GrupoForm(request.POST, instance=grupo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Se ha actualizado el grupo "{grupo.nombre}" correctamente.')
+            return redirect('grupo_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = GrupoForm(instance=grupo)
+
+    return render(request, 'grupo/grupo_form.html', {'form': form, 'title': 'Editar grupo'})
+
+def grupo_delete(request, pk):
+    grupo = Grupo.objects.filter(pk=pk).first()
+    if not grupo:
+        messages.error(request, 'El grupo no existe o ya ha sido eliminado.')
+        return redirect('grupo_list')
+
+    if request.method == 'POST':
+        nombre = grupo.nombre
+        grupo.delete()
+        messages.success(request, f'Se ha eliminado el grupo "{nombre}".')
+        return redirect('grupo_list')
+
+    return redirect('grupo_list')

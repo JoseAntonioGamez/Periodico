@@ -103,3 +103,30 @@ class EventoForm(ModelForm):
         if capacidad is not None and capacidad < 1:
             self.add_error('capacidad', 'La capacidad debe ser un número mayor o igual a 1.')
         return capacidad
+
+class GrupoForm(ModelForm):
+    class Meta:
+        model = Grupo
+        fields = ['nombre', 'descripcion', 'usuarios']
+        labels = {
+            'nombre': 'Nombre del grupo',
+            'descripcion': 'Descripción',
+            'usuarios': 'Usuarios asociados',
+        }
+        widgets = {
+            'nombre': forms.TextInput(),
+            'descripcion': forms.Textarea(),
+            'usuarios': forms.SelectMultiple(),
+        }
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        if nombre:
+            qs = Grupo.objects.filter(nombre__iexact=nombre)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                self.add_error('nombre', 'Ya existe un grupo con ese nombre.')
+            if len(nombre) > 80:
+                self.add_error('nombre', 'El nombre no puede superar 80 caracteres.')
+        return nombre
