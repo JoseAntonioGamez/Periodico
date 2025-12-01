@@ -18,4 +18,9 @@ urlpatterns = [
     path('autores/nuevo/', views.autor_create, name='autor_create'),
     path('autores/<int:pk>/editar/', views.autor_update, name='autor_update'),
     path('autores/<int:pk>/eliminar/', views.autor_delete, name='autor_delete'),
+
+    path('eventos/', views.evento_list, name='evento_list'),
+    path('eventos/nuevo/', views.evento_create, name='evento_create'),
+    path('eventos/<int:pk>/editar/', views.evento_update, name='evento_update'),
+    path('eventos/<int:pk>/eliminar/', views.evento_delete, name='evento_delete'),
 ]

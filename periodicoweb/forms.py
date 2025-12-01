@@ -30,11 +30,9 @@ class AutorForm(ModelForm):
         if not nombre:
             return nombre
 
-        # 1) Longitud máxima (coherente con max_length=100 del modelo)
         if len(nombre) > 100:
             self.add_error('nombre', 'El nombre no puede superar 100 caracteres.')
 
-        # 2) Unicidad (crear y editar)
         qs = Autor.objects.filter(nombre__iexact=nombre)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
@@ -46,8 +44,6 @@ class AutorForm(ModelForm):
     def clean_sueldo(self):
         sueldo = self.cleaned_data.get('sueldo')
 
-        # Si viene vacío o con algo que no se puede convertir, Django ya pone error
-        # aquí solo reforzamos el mensaje si es None
         if sueldo is None:
             self.add_error('sueldo', 'Introduce un sueldo válido (número).')
 
@@ -59,14 +55,51 @@ class AutorForm(ModelForm):
         edad = cleaned_data.get('edad')
         sueldo = cleaned_data.get('sueldo')
 
-        # Edad mínima
         if edad is not None and edad < 18:
             self.add_error('edad', 'La edad mínima es 18 años.')
 
-        # Regla cruzada edad + sueldo
         if edad is not None and sueldo is not None:
             if edad > 65 and sueldo < 1000:
                 self.add_error('edad', 'Para autores mayores de 65 años se espera un sueldo mínimo de 1000€.')
                 self.add_error('sueldo', 'Revisa el sueldo para autores mayores de 65 años.')
 
         return cleaned_data
+    
+class EventoForm(ModelForm):
+    class Meta:
+        model = Evento
+        fields = ['nombre', 'lugar', 'fecha', 'articulos', 'capacidad']
+        labels = {
+            'nombre': 'Nombre del evento',
+            'lugar': 'Lugar',
+            'fecha': 'Fecha del evento',
+            'articulos': 'Artículos relacionados',
+            'capacidad': 'Capacidad',
+        }
+        widgets = {
+            'nombre': forms.TextInput(),
+            'lugar': forms.TextInput(),
+            'fecha': forms.DateInput(),
+            'articulos': forms.SelectMultiple(),
+            'capacidad': forms.NumberInput(),
+        }
+
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        if nombre:
+            qs = Evento.objects.filter(nombre__iexact=nombre)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                self.add_error('nombre', 'Ya existe un evento con ese nombre.')
+            if len(nombre) > 80:
+                self.add_error('nombre', 'El nombre no puede superar 80 caracteres.')
+        return nombre
+
+
+    def clean_capacidad(self):
+        capacidad = self.cleaned_data.get('capacidad')
+        if capacidad is not None and capacidad < 1:
+            self.add_error('capacidad', 'La capacidad debe ser un número mayor o igual a 1.')
+        return capacidad

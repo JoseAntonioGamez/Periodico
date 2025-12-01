@@ -232,45 +232,57 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 
 ---
 
-## Validaciones realizadas (CRUD de Autor)
+## Validaciones realizadas
 
-En el formulario para crear y editar un autor se aplican las siguientes validaciones:
+### CRUD Autor
 
-- **Nombre:**  
-  - No puede superar los 100 caracteres.  
-  - Debe ser único, excluyendo la instancia que se esté editando (para evitar errores falsos al editar).  
-- **Edad:**  
-  - Edad mínima permitida: 18 años.  
-- **Sueldo:**  
+- **nombre:**  
+  - Obligatorio, máximo 100 caracteres.  
+  - Único, excluyendo el registro actual al editar.  
+- **edad:**  
+  - Obligatorio, valor mínimo 18 años.  
+- **sueldo:**  
   - Debe ser un número válido.  
 - **Validación cruzada:**  
-  - Si la edad es mayor de 65 años, el sueldo mínimo debe ser 1000 €.  
+  - Si edad > 65, sueldo mínimo 1000 €.  
 
-Estas validaciones se aplican en métodos `clean_ampo>` y en el método `clean()` del formulario, y los errores se muestran claramente junto a cada campo.
+### CRUD Evento
+
+- **nombre:**  
+  - Obligatorio, máximo 80 caracteres.  
+  - Único, excluyendo el registro actual al editar.  
+- **lugar:**  
+  - Texto opcional, máximo 50 caracteres.  
+- **fecha:**  
+  - Fecha válida obligatoria.  
+- **capacidad:**  
+  - Entero positivo, mínimo 1.  
 
 ---
 
-## Widgets usados (Formulario de Autor)
+## Widgets usados en los formularios
 
-Para el formulario de creación y edición del autor, se usan los siguientes widgets diferentes para mejorar la experiencia del usuario:
-
-| Campo       | Widget                 | Descripción                          |
-|-------------|------------------------|------------------------------------|
-| nombre      | `TextInput`            | Campo de texto simple               |
-| bio         | `Textarea`             | Área de texto multilínea            |
-| edad        | `NumberInput`          | Input numérico                      |
-| sueldo      | `NumberInput`          | Input numérico con decimales        |
-| es_redactor | `CheckboxInput`        | Casilla de verificación             |
-| foto        | `ClearableFileInput`   | Campo para subir o eliminar imagen |
-
-Para la búsqueda avanzada en listado de autores, se aplican widgets HTML como input tipo texto y número con atributos para facilitar la filtración.
+| CRUD   | Campo        | Widget                  | Descripción del widget                          |
+|--------|--------------|-------------------------|------------------------------------------------|
+| Autor  | nombre       | TextInput               | Campo de texto simple para entrada corta       |
+| Autor  | bio          | Textarea                | Área de texto multilínea para descripciones    |
+| Autor  | edad         | NumberInput             | Campo para ingreso numérico                      |
+| Autor  | sueldo       | NumberInput             | Campo numérico con decimales                     |
+| Autor  | es_redactor  | CheckboxInput           | Casilla de verificación (booleano)               |
+| Autor  | foto         | ClearableFileInput      | Campo para subir o borrar archivos/imágenes     |
+| Evento | nombre       | TextInput               | Campo de texto corto para nombre                 |
+| Evento | lugar        | TextInput               | Campo de texto corto para ubicación o lugar     |
+| Evento | fecha        | DateInput               | Selector de fecha, permite escoger fechas        |
+| Evento | articulos    | SelectMultiple          | Selector múltiple para elegir varios artículos  |
+| Evento | capacidad    | NumberInput             | Campo numérico para capacidad                     |
 
 ---
 
 ## Gestión de imágenes
 
-- Las imágenes se almacenan en la carpeta `media/fotos_autores/`.
-- Las URLs públicas se sirven con la configuración de `MEDIA_URL` y `MEDIA_ROOT`.
-- En la interfaz, la foto del autor se muestra si existe, con un tamaño máximo para evitar desbordes.
+- Las imágenes se almacenan en la carpeta `media/` con subcarpetas específicas como `media/fotos_autores/`.
+- Configuración de Django con `MEDIA_ROOT` y `MEDIA_URL` para servir archivos en desarrollo.
+- Campos de tipo `ImageField` en los modelos que permiten subir fotos.
+- Las imágenes se muestran en listas y detalles cuando están disponibles.
 
 ---

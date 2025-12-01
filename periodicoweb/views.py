@@ -320,7 +320,7 @@ def autor_list(request):
         except ValueError:
             pass
 
-    autores = autores.order_by('nombre')  # orden explícito
+    autores = autores.order_by('nombre')  
 
     context = {
         'autores': autores,
@@ -378,5 +378,82 @@ def autor_delete(request, pk):
         messages.success(request, f'Se ha eliminado el autor "{nombre}".')
         return redirect('autor_list')
 
-    # Si es GET, no borra; vuelve al listado
     return redirect('autor_list')
+
+"""
+CRUD 2: Evento
+"""
+
+def evento_list(request):
+    query_nombre = request.GET.get('nombre', '').strip()
+    query_lugar = request.GET.get('lugar', '').strip()
+    query_fecha = request.GET.get('fecha', '').strip()
+
+    eventos = Evento.objects.all()
+
+    if query_nombre:
+        eventos = eventos.filter(nombre__icontains=query_nombre)
+    if query_lugar:
+        eventos = eventos.filter(lugar__icontains=query_lugar)
+    if query_fecha:
+        try:
+            eventos = eventos.filter(fecha=query_fecha)
+        except ValueError:
+            pass
+
+    eventos = eventos.order_by('fecha', 'nombre')
+
+    context = {
+        'eventos': eventos,
+        'query_nombre': query_nombre,
+        'query_lugar': query_lugar,
+        'query_fecha': query_fecha,
+    }
+    return render(request, 'evento/evento_list.html', context)
+
+def evento_create(request):
+    if request.method == 'POST':
+        form = EventoForm(request.POST)
+        if form.is_valid():
+            evento = form.save()
+            messages.success(request, f'Se ha creado el evento "{evento.nombre}" correctamente.')
+            return redirect('evento_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = EventoForm()
+
+    return render(request, 'evento/evento_form.html', {'form': form, 'title': 'Crear evento'})
+
+def evento_update(request, pk):
+    evento = Evento.objects.filter(pk=pk).first()
+    if not evento:
+        messages.error(request, 'El evento no existe.')
+        return redirect('evento_list')
+
+    if request.method == 'POST':
+        form = EventoForm(request.POST, instance=evento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Se ha actualizado el evento "{evento.nombre}" correctamente.')
+            return redirect('evento_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = EventoForm(instance=evento)
+
+    return render(request, 'evento/evento_form.html', {'form': form, 'title': 'Editar evento'})
+
+def evento_delete(request, pk):
+    evento = Evento.objects.filter(pk=pk).first()
+    if not evento:
+        messages.error(request, 'El evento no existe o ya ha sido eliminado.')
+        return redirect('evento_list')
+
+    if request.method == 'POST':
+        nombre = evento.nombre
+        evento.delete()
+        messages.success(request, f'Se ha eliminado el evento "{nombre}".')
+        return redirect('evento_list')
+
+    return redirect('evento_list')
