@@ -130,3 +130,36 @@ class GrupoForm(ModelForm):
             if len(nombre) > 80:
                 self.add_error('nombre', 'El nombre no puede superar 80 caracteres.')
         return nombre
+    
+class UsuarioForm(ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'es_premium', 'puntos']
+        labels = {
+            'nombre': 'Nombre del usuario',
+            'es_premium': 'Usuario Premium',
+            'puntos': 'Puntos acumulados',
+        }
+        widgets = {
+            'nombre': forms.TextInput(),
+            'es_premium': forms.CheckboxInput(),
+            'puntos': forms.NumberInput(),
+        }
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        if nombre:
+            qs = Usuario.objects.filter(nombre__iexact=nombre)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                self.add_error('nombre', 'Ya existe un usuario con ese nombre.')
+            if len(nombre) > 100:
+                self.add_error('nombre', 'El nombre no puede superar 100 caracteres.')
+        return nombre
+
+    def clean_puntos(self):
+        puntos = self.cleaned_data.get('puntos')
+        if puntos is not None and puntos < 0:
+            self.add_error('puntos', 'Los puntos no pueden ser negativos.')
+        return puntos

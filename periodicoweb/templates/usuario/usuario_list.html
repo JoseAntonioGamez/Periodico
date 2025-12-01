@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">Usuarios</h2>
+      <a href="{% url 'usuario_create' %}" class="btn btn-success btn-sm">Nuevo usuario</a>
+    </div>
+    <div class="card-body">
+      <form method="get" class="row g-3 mb-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label" for="id_buscar_nombre">Nombre</label>
+          <input type="text" id="id_buscar_nombre" name="nombre" value="{{ query_nombre }}" class="form-control" placeholder="Buscar por nombre">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="id_buscar_es_premium">Es Premium</label>
+          <select id="id_buscar_es_premium" name="es_premium" class="form-select">
+            <option value="">Todos</option>
+            <option value="true" {% if query_es_premium == 'true' %}selected{% endif %}>Sí</option>
+            <option value="false" {% if query_es_premium == 'false' %}selected{% endif %}>No</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="id_buscar_puntos">Puntos</label>
+          <input type="number" id="id_buscar_puntos" name="puntos" value="{{ query_puntos }}" class="form-control" placeholder="Buscar por puntos">
+        </div>
+        <div class="col-md-12 d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-primary">Buscar</button>
+          <a href="{% url 'usuario_list' %}" class="btn btn-secondary">Limpiar</a>
+        </div>
+      </form>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Es Premium</th>
+              <th>Puntos</th>
+              <th>Registrado en</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for usuario in usuarios %}
+              <tr>
+                <td>{{ usuario.nombre }}</td>
+                <td>{% if usuario.es_premium %}✔{% else %}✖{% endif %}</td>
+                <td>{{ usuario.puntos }}</td>
+                <td>{{ usuario.registrado_en }}</td>
+                <td>
+                  <a href="{% url 'usuario_update' usuario.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                  <form method="post" action="{% url 'usuario_delete' usuario.pk %}" class="d-inline" onsubmit="return confirm('¿Seguro que quieres eliminar el usuario {{ usuario.nombre }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5">No hay usuarios.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -236,66 +236,61 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 
 ### CRUD Autor
 
-- **nombre:**  
-  - Obligatorio, máximo 100 caracteres.  
-  - Único, excluyendo el registro actual al editar.  
-- **edad:**  
-  - Obligatorio, valor mínimo 18 años.  
-- **sueldo:**  
-  - Debe ser un número válido.  
-- **Validación cruzada:**  
-  - Si edad > 65, sueldo mínimo 1000 €.  
+- **nombre:** obligatorio, máximo 100 caracteres, único (excluyendo el registro actual al editar).  
+- **edad:** mínimo 18 años obligatorios.  
+- **sueldo:** número válido.  
+- **Validación cruzada:** si edad > 65, sueldo mínimo 1000 €.  
 
 ### CRUD Evento
 
-- **nombre:**  
-  - Obligatorio, máximo 80 caracteres.  
-  - Único, excluyendo el registro actual al editar.  
-- **lugar:**  
-  - Texto opcional, máximo 50 caracteres.  
-- **fecha:**  
-  - Fecha válida obligatoria.  
-- **capacidad:**  
-  - Entero positivo, mínimo 1.  
+- **nombre:** obligatorio, máximo 80 caracteres, único.  
+- **lugar:** texto opcional hasta 50 caracteres.  
+- **fecha:** fecha válida obligatoria.  
+- **capacidad:** entero positivo mínimo 1.  
 
 ### CRUD Grupo
 
-- **nombre:**  
-  - Obligatorio, máximo 80 caracteres.  
-  - Único, excluyendo el registro actual al editar.  
-- **descripcion:**  
-  - Texto opcional.  
-- **creado_en:**  
-  - Fecha automática de creación, usada para búsquedas.  
+- **nombre:** obligatorio, máximo 80 caracteres, único.  
+- **descripcion:** campo opcional.  
+- **creado_en:** fecha automática de creación (filtrable).  
+
+### CRUD Usuario
+
+- **nombre:** obligatorio, máximo 100 caracteres, único.  
+- **puntos:** entero mayor o igual a 0, no negativo.  
+- **es_premium:** booleano.  
 
 ---
 
 ## Widgets usados en los formularios
 
-| CRUD   | Campo        | Widget                  | Descripción del widget                           |
-|--------|--------------|-------------------------|-------------------------------------------------|
-| Autor  | nombre       | TextInput               | Campo de texto simple para entrada corta        |
-| Autor  | bio          | Textarea                | Área de texto multilínea para descripciones     |
-| Autor  | edad         | NumberInput             | Campo para ingreso numérico                       |
-| Autor  | sueldo       | NumberInput             | Campo numérico con decimales                      |
-| Autor  | es_redactor  | CheckboxInput           | Casilla de verificación (booleano)                |
-| Autor  | foto         | ClearableFileInput      | Campo para subir o borrar archivos/imágenes      |
-| Evento | nombre       | TextInput               | Campo de texto corto para nombre                  |
-| Evento | lugar        | TextInput               | Campo de texto corto para ubicación o lugar      |
-| Evento | fecha        | DateInput               | Selector de fecha, permite escoger fechas         |
-| Evento | articulos    | SelectMultiple          | Selector múltiple para elegir varios artículos   |
-| Evento | capacidad    | NumberInput             | Campo numérico para capacidad                      |
-| Grupo  | nombre       | TextInput               | Campo de texto corto para nombre del grupo       |
-| Grupo  | descripcion  | Textarea                | Área de texto para descripción                     |
-| Grupo  | usuarios     | SelectMultiple          | Selector múltiple para seleccionar usuarios       |
+| CRUD   | Campo        | Widget                  | Descripción del widget                          |
+|--------|--------------|-------------------------|------------------------------------------------|
+| Autor  | nombre       | TextInput               | Campo de texto simple para entrada corta       |
+| Autor  | bio          | Textarea                | Área de texto multilínea para descripciones    |
+| Autor  | edad         | NumberInput             | Campo para entrada numérica                      |
+| Autor  | sueldo       | NumberInput             | Campo numérico con decimales                     |
+| Autor  | es_redactor  | CheckboxInput           | Casilla de verificación booleano                 |
+| Autor  | foto         | ClearableFileInput      | Campo para subir o eliminar archivos/imágenes   |
+| Evento | nombre       | TextInput               | Campo de texto corto                             |
+| Evento | lugar        | TextInput               | Campo de texto corto                             |
+| Evento | fecha        | DateInput               | Selector de fecha                               |
+| Evento | articulos    | SelectMultiple          | Selector múltiple                               |
+| Evento | capacidad    | NumberInput             | Campo numérico para capacidad                    |
+| Grupo  | nombre       | TextInput               | Campo de texto corto                             |
+| Grupo  | descripcion  | Textarea                | Área de texto                                   |
+| Grupo  | usuarios     | SelectMultiple          | Selector múltiple                               |
+| Usuario| nombre       | TextInput               | Campo de texto simple                           |
+| Usuario| es_premium   | CheckboxInput           | Casilla booleano                                |
+| Usuario| puntos       | NumberInput             | Campo numérico                                  |
 
 ---
 
 ## Gestión de imágenes
 
-- Las imágenes se almacenan en la carpeta `media/` con subcarpetas específicas como `media/fotos_autores/`.
-- Configuración de Django con `MEDIA_ROOT` y `MEDIA_URL` para servir archivos en desarrollo.
-- Campos de tipo `ImageField` en los modelos que permiten subir fotos.
-- Las imágenes se muestran en listas y detalles cuando están disponibles.
+- Las imágenes se guardan en la carpeta `media/` con subdirectorios específicos, como `media/fotos_autores/`.  
+- Configuración mediante `MEDIA_ROOT` y `MEDIA_URL` para servir archivos multimedia en desarrollo.  
+- Los modelos con imágenes usan `ImageField` para subir archivos.  
+- Las imágenes se muestran en las listas y detalles cuando están disponibles.  
 
 ---

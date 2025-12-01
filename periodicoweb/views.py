@@ -537,3 +537,86 @@ def grupo_delete(request, pk):
         return redirect('grupo_list')
 
     return redirect('grupo_list')
+
+"""
+CRUD 4: Uusario
+"""
+def usuario_list(request):
+    query_nombre = request.GET.get('nombre', '').strip()
+    query_es_premium = request.GET.get('es_premium', '').strip()
+    query_puntos = request.GET.get('puntos', '').strip()
+
+    usuarios = Usuario.objects.all()
+
+    if query_nombre:
+        usuarios = usuarios.filter(nombre__icontains=query_nombre)
+
+    if query_es_premium.lower() in ['true', '1', '']:
+        usuarios = usuarios.filter(es_premium=True)
+    elif query_es_premium.lower() in ['false', '0']:
+        usuarios = usuarios.filter(es_premium=False)
+    # Si no se envía filtro o es diferente, no filtramos por es_premium
+
+    if query_puntos:
+        try:
+            usuarios = usuarios.filter(puntos=int(query_puntos))
+        except ValueError:
+            pass
+
+    usuarios = usuarios.order_by('nombre')
+
+    context = {
+        'usuarios': usuarios,
+        'query_nombre': query_nombre,
+        'query_es_premium': query_es_premium,
+        'query_puntos': query_puntos,
+    }
+
+    return render(request, 'usuario/usuario_list.html', context)
+
+def usuario_create(request):
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST)
+        if form.is_valid():
+            usuario = form.save()
+            messages.success(request, f'Se ha creado el usuario "{usuario.nombre}" correctamente.')
+            return redirect('usuario_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = UsuarioForm()
+
+    return render(request, 'usuario/usuario_form.html', {'form': form, 'title': 'Crear usuario'})
+
+def usuario_update(request, pk):
+    usuario = Usuario.objects.filter(pk=pk).first()
+    if not usuario:
+        messages.error(request, 'El usuario no existe.')
+        return redirect('usuario_list')
+
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Se ha actualizado el usuario "{usuario.nombre}" correctamente.')
+            return redirect('usuario_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = UsuarioForm(instance=usuario)
+
+    return render(request, 'usuario/usuario_form.html', {'form': form, 'title': 'Editar usuario'})
+
+def usuario_delete(request, pk):
+    usuario = Usuario.objects.filter(pk=pk).first()
+    if not usuario:
+        messages.error(request, 'El usuario no existe o ya ha sido eliminado.')
+        return redirect('usuario_list')
+
+    if request.method == 'POST':
+        nombre = usuario.nombre
+        usuario.delete()
+        messages.success(request, f'Se ha eliminado el usuario "{nombre}".')
+        return redirect('usuario_list')
+
+    return redirect('usuario_list')
