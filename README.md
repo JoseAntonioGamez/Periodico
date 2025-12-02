@@ -311,3 +311,14 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 - Las imágenes se muestran en listas y detalles cuando están disponibles.  
 
 ---
+
+(**NOTA ACLARATORIA:** 
+
+Bootstrap, Bootstrap_icons y Pillow pueden dar errores a la hora de clonar el proyecto, por lo que se recomienda si pasa instalarlos aparte:
+
+- pip install django-bootstrap5
+- pip install django-bootstrap-icons
+- pip install Pillow
+
+No se ha podido encontrar una solucion a esto, ya que puede ser que den conflictos por las versiones instaladas.
+)
