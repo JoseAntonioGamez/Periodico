@@ -239,60 +239,69 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 - **nombre:** obligatorio, máximo 100 caracteres, único (excluyendo el registro actual al editar).  
 - **edad:** mínimo 18 años obligatorios.  
 - **sueldo:** número válido.  
-- **Validación cruzada:** si edad > 65, sueldo mínimo 1000 €.  
+- **Validación cruzada:** si edad > 65, sueldo mínimo 1000 €.
 
 ### CRUD Evento
 
 - **nombre:** obligatorio, máximo 80 caracteres, único.  
 - **lugar:** texto opcional hasta 50 caracteres.  
 - **fecha:** fecha válida obligatoria.  
-- **capacidad:** entero positivo mínimo 1.  
+- **capacidad:** entero positivo mínimo 1.
 
 ### CRUD Grupo
 
 - **nombre:** obligatorio, máximo 80 caracteres, único.  
-- **descripcion:** opcional, máximo 200 caracteres.  
-- Validamos explícitamente ambos campos `nombre` y `descripcion`.
+- **descripcion:** opcional, máximo 200 caracteres.
 
 ### CRUD Usuario
 
 - **nombre:** obligatorio, máximo 100 caracteres, único.  
-- **puntos:** entero mayor o igual a 0, no negativo.  
+- **puntos:** entero mayor o igual a 0, no negativo.
 
 ### CRUD Etiqueta
 
 - **nombre:** opcional, si se proporciona máximo 30 caracteres.  
-- **color:** obligatorio, máximo 20 caracteres.  
+- **color:** obligatorio, máximo 20 caracteres.
+
+### CRUD Comentario
+
+- **texto:** obligatorio, entre 5 y 500 caracteres.  
+- **puntuacion:** valor entre 0.0 y 5.0.
 
 ---
 
 ## Widgets usados en los formularios
 
-| CRUD   | Campo        | Widget                  | Descripción del widget                          |
-|--------|--------------|-------------------------|------------------------------------------------|
-| Autor  | nombre       | TextInput               | Campo de texto simple para entrada corta       |
-| Autor  | bio          | Textarea                | Área de texto multilínea para descripciones    |
-| Autor  | edad         | NumberInput             | Campo para entrada numérica                      |
-| Autor  | sueldo       | NumberInput             | Campo numérico con decimales                     |
-| Autor  | es_redactor  | CheckboxInput           | Casilla de verificación booleano                 |
-| Autor  | foto         | ClearableFileInput      | Campo para subir o eliminar archivos/imágenes   |
-| Evento | nombre       | TextInput               | Campo de texto corto                             |
-| Evento | lugar        | TextInput               | Campo de texto corto                             |
-| Evento | fecha        | DateInput               | Selector de fecha                               |
-| Evento | articulos    | SelectMultiple          | Selector múltiple                               |
-| Evento | capacidad    | NumberInput             | Campo numérico para capacidad                    |
-| Grupo  | nombre       | TextInput               | Campo de texto corto                             |
-| Grupo  | descripcion  | Textarea                | Área de texto                                   |
-| Grupo  | usuarios     | SelectMultiple          | Selector múltiple                               |
-| Usuario| nombre       | TextInput               | Campo de texto simple                           |
-| Usuario| es_premium   | CheckboxInput           | Casilla booleano                                |
-| Usuario| puntos       | NumberInput             | Campo numérico                                  |
-| Etiqueta| nombre      | TextInput               | Campo de texto corto (opcional)                 |
-| Etiqueta| color       | TextInput               | Campo de texto corto para color HTML            |
-| Etiqueta| descripcion | Textarea                | Área de texto (opcional)                         |
-| Etiqueta| activa      | CheckboxInput           | Casilla booleano                                |
+| CRUD      | Campo        | Widget                  | Descripción del widget                          |
+|-----------|--------------|-------------------------|------------------------------------------------|
+| Autor     | nombre       | TextInput               | Campo de texto simple para entrada corta       |
+| Autor     | bio          | Textarea                | Área de texto multilínea para descripciones    |
+| Autor     | edad         | NumberInput             | Campo para entrada numérica                      |
+| Autor     | sueldo       | NumberInput             | Campo numérico con decimales                     |
+| Autor     | es_redactor  | CheckboxInput           | Casilla de verificación booleano                 |
+| Autor     | foto         | ClearableFileInput      | Campo para subir o eliminar archivos/imágenes   |
+| Evento    | nombre       | TextInput               | Campo de texto corto                             |
+| Evento    | lugar        | TextInput               | Campo de texto corto                             |
+| Evento    | fecha        | DateInput               | Selector de fecha                               |
+| Evento    | articulos    | SelectMultiple          | Selector múltiple                               |
+| Evento    | capacidad    | NumberInput             | Campo numérico para capacidad                    |
+| Grupo     | nombre       | TextInput               | Campo de texto corto                             |
+| Grupo     | descripcion  | Textarea                | Área de texto                                   |
+| Grupo     | usuarios     | SelectMultiple          | Selector múltiple                               |
+| Usuario   | nombre       | TextInput               | Campo de texto simple                           |
+| Usuario   | es_premium   | CheckboxInput           | Casilla booleano                                |
+| Usuario   | puntos       | NumberInput             | Campo numérico                                  |
+| Etiqueta  | nombre       | TextInput               | Campo de texto corto (opcional)                 |
+| Etiqueta  | color        | TextInput               | Campo de texto corto para color HTML            |
+| Etiqueta  | descripcion  | Textarea                | Área de texto (opcional)                         |
+| Etiqueta  | activa       | CheckboxInput           | Casilla booleano                                |
+| Comentario| usuario      | Select                  | Selector para usuario (clave foránea)           |
+| Comentario| articulo     | Select                  | Selector para artículo (clave foránea)          |
+| Comentario| texto        | Textarea                | Área de texto para comentario                    |
+| Comentario| puntuacion   | NumberInput             | Campo numérico (float) para puntuación          |
 
 ---
+
 
 ## Gestión de imágenes
 
