@@ -551,11 +551,10 @@ def usuario_list(request):
     if query_nombre:
         usuarios = usuarios.filter(nombre__icontains=query_nombre)
 
-    if query_es_premium.lower() in ['true', '1', '']:
+    if query_es_premium.lower() == 'true' or query_es_premium == '1':
         usuarios = usuarios.filter(es_premium=True)
-    elif query_es_premium.lower() in ['false', '0']:
+    elif query_es_premium.lower() == 'false' or query_es_premium == '0':
         usuarios = usuarios.filter(es_premium=False)
-    # Si no se envía filtro o es diferente, no filtramos por es_premium
 
     if query_puntos:
         try:
@@ -620,3 +619,82 @@ def usuario_delete(request, pk):
         return redirect('usuario_list')
 
     return redirect('usuario_list')
+
+"""
+CRUD 5: Etiqueta
+"""
+
+def etiqueta_list(request):
+    query_nombre = request.GET.get('nombre', '').strip()
+    query_color = request.GET.get('color', '').strip()
+    query_activa = request.GET.get('activa', '').strip()
+
+    etiquetas = Etiqueta.objects.all()
+
+    if query_nombre:
+        etiquetas = etiquetas.filter(nombre__icontains=query_nombre)
+
+    if query_color:
+        etiquetas = etiquetas.filter(color__icontains=query_color)
+
+    if query_activa.lower() == 'true' or query_activa == '1':
+        etiquetas = etiquetas.filter(activa=True)
+    elif query_activa.lower() == 'false' or query_activa == '0':
+        etiquetas = etiquetas.filter(activa=False)
+
+    etiquetas = etiquetas.order_by('nombre')
+
+    context = {
+        'etiquetas': etiquetas,
+        'query_nombre': query_nombre,
+        'query_color': query_color,
+        'query_activa': query_activa,
+    }
+    return render(request, 'etiqueta/etiqueta_list.html', context)
+
+def etiqueta_create(request):
+    if request.method == 'POST':
+        form = EtiquetaForm(request.POST)
+        if form.is_valid():
+            etiqueta = form.save()
+            messages.success(request, f'Se ha creado la etiqueta "{etiqueta.nombre or "(Sin nombre)"}" correctamente.')
+            return redirect('etiqueta_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = EtiquetaForm()
+
+    return render(request, 'etiqueta/etiqueta_form.html', {'form': form, 'title': 'Crear etiqueta'})
+
+def etiqueta_update(request, pk):
+    etiqueta = Etiqueta.objects.filter(pk=pk).first()
+    if not etiqueta:
+        messages.error(request, 'La etiqueta no existe.')
+        return redirect('etiqueta_list')
+
+    if request.method == 'POST':
+        form = EtiquetaForm(request.POST, instance=etiqueta)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Se ha actualizado la etiqueta "{etiqueta.nombre or "(Sin nombre)"}" correctamente.')
+            return redirect('etiqueta_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = EtiquetaForm(instance=etiqueta)
+
+    return render(request, 'etiqueta/etiqueta_form.html', {'form': form, 'title': 'Editar etiqueta'})
+
+def etiqueta_delete(request, pk):
+    etiqueta = Etiqueta.objects.filter(pk=pk).first()
+    if not etiqueta:
+        messages.error(request, 'La etiqueta no existe o ya ha sido eliminada.')
+        return redirect('etiqueta_list')
+
+    if request.method == 'POST':
+        nombre = etiqueta.nombre or "(Sin nombre)"
+        etiqueta.delete()
+        messages.success(request, f'Se ha eliminado la etiqueta "{nombre}".')
+        return redirect('etiqueta_list')
+
+    return redirect('etiqueta_list')

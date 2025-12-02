@@ -131,6 +131,12 @@ class GrupoForm(ModelForm):
                 self.add_error('nombre', 'El nombre no puede superar 80 caracteres.')
         return nombre
     
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion')
+        if descripcion and len(descripcion) > 200:
+            self.add_error('descripcion', 'La descripción no puede superar 200 caracteres.')
+        return descripcion
+    
 class UsuarioForm(ModelForm):
     class Meta:
         model = Usuario
@@ -163,3 +169,34 @@ class UsuarioForm(ModelForm):
         if puntos is not None and puntos < 0:
             self.add_error('puntos', 'Los puntos no pueden ser negativos.')
         return puntos
+    
+class EtiquetaForm(ModelForm):
+    class Meta:
+        model = Etiqueta
+        fields = ['nombre', 'color', 'descripcion', 'activa']
+        labels = {
+            'nombre': 'Nombre de la etiqueta',
+            'color': 'Color HTML',
+            'descripcion': 'Descripción',
+            'activa': 'Etiqueta activa',
+        }
+        widgets = {
+            'nombre': forms.TextInput(),
+            'color': forms.TextInput(),
+            'descripcion': forms.Textarea(),
+            'activa': forms.CheckboxInput(),
+        }
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        if nombre and len(nombre) > 30:
+            self.add_error('nombre', 'El nombre no puede superar 30 caracteres.')
+        return nombre
+
+    def clean_color(self):
+        color = self.cleaned_data.get('color')
+        if not color:
+            self.add_error('color', 'El color es obligatorio.')
+        elif len(color) > 20:
+            self.add_error('color', 'El color no puede superar 20 caracteres.')
+        return color

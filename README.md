@@ -251,14 +251,18 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 ### CRUD Grupo
 
 - **nombre:** obligatorio, máximo 80 caracteres, único.  
-- **descripcion:** campo opcional.  
-- **creado_en:** fecha automática de creación (filtrable).  
+- **descripcion:** opcional, máximo 200 caracteres.  
+- Validamos explícitamente ambos campos `nombre` y `descripcion`.
 
 ### CRUD Usuario
 
 - **nombre:** obligatorio, máximo 100 caracteres, único.  
 - **puntos:** entero mayor o igual a 0, no negativo.  
-- **es_premium:** booleano.  
+
+### CRUD Etiqueta
+
+- **nombre:** opcional, si se proporciona máximo 30 caracteres.  
+- **color:** obligatorio, máximo 20 caracteres.  
 
 ---
 
@@ -283,6 +287,16 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 | Usuario| nombre       | TextInput               | Campo de texto simple                           |
 | Usuario| es_premium   | CheckboxInput           | Casilla booleano                                |
 | Usuario| puntos       | NumberInput             | Campo numérico                                  |
+| Etiqueta| nombre      | TextInput               | Campo de texto corto (opcional)                 |
+| Etiqueta| color       | TextInput               | Campo de texto corto para color HTML            |
+| Etiqueta| descripcion | Textarea                | Área de texto (opcional)                         |
+| Etiqueta| activa      | CheckboxInput           | Casilla booleano                                |
+
+---
+
+## Gestión de filtros booleanos en búsquedas
+
+Para los campos booleanos (`es_premium` en Usuario y `activa` en Etiqueta), la opción "Todos" en los desplegables ahora muestra correctamente todos los registros sin filtrar, corrigiendo el comportamiento anterior donde mostraba solo los verdaderos.
 
 ---
 
@@ -291,6 +305,6 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 - Las imágenes se guardan en la carpeta `media/` con subdirectorios específicos, como `media/fotos_autores/`.  
 - Configuración mediante `MEDIA_ROOT` y `MEDIA_URL` para servir archivos multimedia en desarrollo.  
 - Los modelos con imágenes usan `ImageField` para subir archivos.  
-- Las imágenes se muestran en las listas y detalles cuando están disponibles.  
+- Las imágenes se muestran en listas y detalles cuando están disponibles.  
 
 ---

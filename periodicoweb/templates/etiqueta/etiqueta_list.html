@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Etiquetas{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Etiquetas</h2>
+        <a href="{% url 'etiqueta_create' %}" class="btn btn-success btn-sm">Nueva etiqueta</a>
+        </div>
+        <div class="card-body">
+        <form method="get" class="row g-3 mb-3 align-items-end">
+            <div class="col-md-4">
+            <label class="form-label" for="id_buscar_nombre">Nombre</label>
+            <input type="text" id="id_buscar_nombre" name="nombre" value="{{ query_nombre }}" class="form-control" placeholder="Buscar por nombre">
+            </div>
+            <div class="col-md-4">
+            <label class="form-label" for="id_buscar_color">Color HTML</label>
+            <input type="text" id="id_buscar_color" name="color" value="{{ query_color }}" class="form-control" placeholder="Buscar por color">
+            </div>
+            <div class="col-md-4">
+            <label class="form-label" for="id_buscar_activa">Activa</label>
+            <select id="id_buscar_activa" name="activa" class="form-select">
+                <option value="">Todos</option>
+                <option value="true" {% if query_activa == 'true' %}selected{% endif %}>Sí</option>
+                <option value="false" {% if query_activa == 'false' %}selected{% endif %}>No</option>
+            </select>
+            </div>
+            <div class="col-md-12 d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            <a href="{% url 'etiqueta_list' %}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                <th>Nombre</th>
+                <th>Color</th>
+                <th>Descripción</th>
+                <th>Activa</th>
+                <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etiqueta in etiquetas %}
+                <tr>
+                <td>{{ etiqueta.nombre|default:"(Sin nombre)" }}</td>
+                <td>{{ etiqueta.color }}</td>
+                <td>{{ etiqueta.descripcion|default:"-"|truncatewords:10 }}</td>
+                <td>{% if etiqueta.activa %}✔{% else %}✖{% endif %}</td>
+                <td>
+                    <a href="{% url 'etiqueta_update' etiqueta.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                    <form method="post" action="{% url 'etiqueta_delete' etiqueta.pk %}" class="d-inline" onsubmit="return confirm('¿Seguro que quieres eliminar la etiqueta {{ etiqueta.nombre|default:"(Sin nombre)"|escapejs }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No hay etiquetas.</td></tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
