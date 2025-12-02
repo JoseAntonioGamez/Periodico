@@ -698,3 +698,80 @@ def etiqueta_delete(request, pk):
         return redirect('etiqueta_list')
 
     return redirect('etiqueta_list')
+
+"""
+CRUD 6: Comentario
+"""
+
+def comentario_list(request):
+    query_usuario = request.GET.get('usuario', '').strip()
+    query_articulo = request.GET.get('articulo', '').strip()
+    query_puntuacion = request.GET.get('puntuacion', '').strip()
+
+    comentarios = Comentario.objects.all()
+
+    if query_usuario:
+        comentarios = comentarios.filter(usuario__nombre__icontains=query_usuario)
+    if query_articulo:
+        comentarios = comentarios.filter(articulo__titulo__icontains=query_articulo)
+    if query_puntuacion:
+        try:
+            comentarios = comentarios.filter(puntuacion=float(query_puntuacion))
+        except ValueError:
+            pass
+
+    comentarios = comentarios.order_by('-fecha')
+
+    context = {
+        'comentarios': comentarios,
+        'query_usuario': query_usuario,
+        'query_articulo': query_articulo,
+        'query_puntuacion': query_puntuacion,
+    }
+    return render(request, 'comentario/comentario_list.html', context)
+
+def comentario_create(request):
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST)
+        if form.is_valid():
+            comentario = form.save()
+            messages.success(request, 'Se ha creado el comentario correctamente.')
+            return redirect('comentario_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = ComentarioForm()
+
+    return render(request, 'comentario/comentario_form.html', {'form': form, 'title': 'Crear comentario'})
+
+def comentario_update(request, pk):
+    comentario = Comentario.objects.filter(pk=pk).first()
+    if not comentario:
+        messages.error(request, 'El comentario no existe.')
+        return redirect('comentario_list')
+
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST, instance=comentario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Se ha actualizado el comentario correctamente.')
+            return redirect('comentario_list')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
+    else:
+        form = ComentarioForm(instance=comentario)
+
+    return render(request, 'comentario/comentario_form.html', {'form': form, 'title': 'Editar comentario'})
+
+def comentario_delete(request, pk):
+    comentario = Comentario.objects.filter(pk=pk).first()
+    if not comentario:
+        messages.error(request, 'El comentario no existe o ya ha sido eliminado.')
+        return redirect('comentario_list')
+
+    if request.method == 'POST':
+        comentario.delete()
+        messages.success(request, 'Se ha eliminado el comentario correctamente.')
+        return redirect('comentario_list')
+
+    return redirect('comentario_list')

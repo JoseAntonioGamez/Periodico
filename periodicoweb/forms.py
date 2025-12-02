@@ -200,3 +200,34 @@ class EtiquetaForm(ModelForm):
         elif len(color) > 20:
             self.add_error('color', 'El color no puede superar 20 caracteres.')
         return color
+    
+class ComentarioForm(ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ['usuario', 'articulo', 'texto', 'puntuacion']
+        labels = {
+            'usuario': 'Usuario',
+            'articulo': 'Artículo',
+            'texto': 'Comentario',
+            'puntuacion': 'Puntuación (0.0 - 5.0)',
+        }
+        widgets = {
+            'usuario': forms.Select(),
+            'articulo': forms.Select(),
+            'texto': forms.Textarea(),
+            'puntuacion': forms.NumberInput(),
+        }
+
+    def clean_texto(self):
+        texto = self.cleaned_data.get('texto')
+        if not texto or len(texto) < 5:
+            self.add_error('texto', 'El comentario debe tener al menos 5 caracteres.')
+        elif len(texto) > 500:
+            self.add_error('texto', 'El comentario no puede superar 500 caracteres.')
+        return texto
+
+    def clean_puntuacion(self):
+        puntuacion = self.cleaned_data.get('puntuacion')
+        if puntuacion is None or not (0.0 <= puntuacion <= 5.0):
+            self.add_error('puntuacion', 'La puntuación debe ser un valor entre 0.0 y 5.0.')
+        return puntuacion

@@ -38,4 +38,9 @@ urlpatterns = [
     path('etiquetas/nuevo/', views.etiqueta_create, name='etiqueta_create'),
     path('etiquetas/<int:pk>/editar/', views.etiqueta_update, name='etiqueta_update'),
     path('etiquetas/<int:pk>/eliminar/', views.etiqueta_delete, name='etiqueta_delete'),
+
+    path('comentarios/', views.comentario_list, name='comentario_list'),
+    path('comentarios/nuevo/', views.comentario_create, name='comentario_create'),
+    path('comentarios/<int:pk>/editar/', views.comentario_update, name='comentario_update'),
+    path('comentarios/<int:pk>/eliminar/', views.comentario_delete, name='comentario_delete'),
 ]
