@@ -294,12 +294,6 @@ Es una función de Django que busca un objeto en la base de datos segun los crit
 
 ---
 
-## Gestión de filtros booleanos en búsquedas
-
-Para los campos booleanos (`es_premium` en Usuario y `activa` en Etiqueta), la opción "Todos" en los desplegables ahora muestra correctamente todos los registros sin filtrar, corrigiendo el comportamiento anterior donde mostraba solo los verdaderos.
-
----
-
 ## Gestión de imágenes
 
 - Las imágenes se guardan en la carpeta `media/` con subdirectorios específicos, como `media/fotos_autores/`.  
