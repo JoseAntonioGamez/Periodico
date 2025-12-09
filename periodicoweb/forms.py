@@ -2,6 +2,17 @@ from django import forms
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 from .models import *
+from django.contrib.auth.forms import UserCreationForm
+
+class RegistroForm(UserCreationForm):
+    roles = (
+        (UsuarioSesion.AUTOR, 'Autor'),
+        (UsuarioSesion.USUARIO, 'Usuario'),
+    )
+    rol = forms.ChoiceField(choices=roles)
+    class Meta:
+        model = UsuarioSesion
+        fields = ['username', 'email', 'password1', 'password2', 'rol']
 
 class AutorForm(ModelForm):
     class Meta:

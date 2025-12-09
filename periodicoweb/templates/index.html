@@ -5,6 +5,16 @@
   <h1>Bienvenido al Periódico Web</h1>
 {% endblock %}
 {% block content %}
+  <p>
+    Fecha de inicio:
+    {{ request.session.fecha_inicio }}<br>
+    Nombre de usuario:
+    {{ request.session.nombre }}<br>
+    Rol de usuario:
+    {{ request.session.rol }}<br>
+    Número de visitas a la página:
+    {{ request.session.visitas }}
+  </p>
   <p>Bienvenido. Utiliza el menú superior para navegar.</p>
 {% endblock %}
 

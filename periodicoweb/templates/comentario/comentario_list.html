@@ -7,7 +7,9 @@
   <div class="card shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h2 class="mb-0">Comentarios</h2>
-      <a href="{% url 'comentario_create' %}" class="btn btn-success btn-sm">Nuevo comentario</a>
+      {% if perms.periodicoweb.add_comentario %}
+        <a href="{% url 'comentario_create' %}" class="btn btn-success btn-sm">Nuevo comentario</a>
+      {% endif %}
     </div>
     <div class="card-body">
       <form method="get" class="row g-3 mb-3 align-items-end">

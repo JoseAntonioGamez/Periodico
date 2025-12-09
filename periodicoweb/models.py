@@ -1,8 +1,24 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
+class UsuarioSesion(AbstractUser):
+    ADMINISTRADOR = 1
+    AUTOR = 2
+    USUARIO = 3
+    ROLES = [
+        (ADMINISTRADOR, 'Administrador'),
+        (AUTOR, 'Autor'),
+        (USUARIO, 'Usuario'),
+    ]
+
+    rol = models.PositiveSmallIntegerField(
+        choices=ROLES, default=1
+        )
+
 class Autor(models.Model):
+    usuariosesion = models.OneToOneField(UsuarioSesion, on_delete=models.CASCADE, null=True)
     nombre = models.CharField(max_length=100, unique=True, help_text="Nombre completo")
     bio = models.TextField(blank=True)
     edad = models.PositiveIntegerField(default=18, null=True)
@@ -18,6 +34,7 @@ class PerfilAutor(models.Model):
     hora_favorita = models.TimeField(auto_now=True)
 
 class Usuario(models.Model):
+    usuariosesion = models.OneToOneField(UsuarioSesion, on_delete=models.CASCADE, null=True)
     nombre = models.CharField(max_length=100)
     registrado_en = models.DateTimeField(auto_now_add=True)
     es_premium = models.BooleanField(default=False)

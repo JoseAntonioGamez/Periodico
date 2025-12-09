@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import *
@@ -6,6 +7,9 @@ from django.db.models.functions import Length
 from django.shortcuts import render
 from django.views.defaults import page_not_found
 from .forms import *
+from django.contrib.auth import login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth.decorators import login_required, permission_required
 
 
 # Create your views here.
@@ -17,270 +21,29 @@ def post_list(request):
 Página índice estática con enlaces a otras urls
 """
 def index(request):
+
+    if(not "fecha_inicio" in request.session):
+        request.session["fecha_inicio"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if request.user.is_authenticated:
+        if not "nombre" in request.session:
+            request.session["nombre"] = request.user.username
+        if not "rol" in request.session:
+            request.session["rol"] = dict(UsuarioSesion.ROLES)[request.user.rol]
+        if not "visitas" in request.session:
+            request.session["visitas"] = 0
+        request.session["visitas"] = request.session["visitas"] + 1
+    
     return render(request, 'index.html')
 
+def logout_view(request):
+    request.session.flush()  # Limpia TODO
+    auth_logout(request)
+    return redirect('index')
 
 """
-URL 1: Obtiene todos los articulos junto con su autor y seccion asociados.
+Manejo de errores personalizados
 """
-def listar_articulos(request):
-    articulos = Articulo.objects.select_related('autor', 'seccion').order_by('-publicado_en').all()
-
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT a.* 
-        FROM periodicoweb_articulo a
-        JOIN periodicoweb_autor au ON a.autor_id = au.id
-        LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
-        ORDER BY a.publicado_en DESC
-    )
-    """
-
-    return render(request, 'articulos/articulos.html', {'articulos': articulos})
-
-
-"""
-URL 2: Muestra los detalles especificos de un articulo especifico por su ID.
-"""
-
-
-def detalle_articulo(request, id):
-    
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
-        FROM periodicoweb_articulo a
-        INNER JOIN periodicoweb_autor au ON a.autor_id = au.id
-        LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
-        WHERE a.id = %s, [id])
-    """
-
-    articulo = get_object_or_404(
-        Articulo.objects.select_related('autor', 'seccion'),
-        pk=id
-    )
-
-    return render(request, 'articulos/detalle.html', {'articulo': articulo})
-
-
-"""
-URL 3: Muestra los articulos publicados en un año y mes específicos.
-"""
-
-
-def articulos_por_fecha(request, anio, mes):
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT a.*
-        FROM periodicoweb_articulo a
-        WHERE EXTRACT(YEAR FROM a.publicado_en) = %s
-        AND EXTRACT(MONTH FROM a.publicado_en) = %s
-        ORDER BY a.publicado_en DESC, [anio, mes])
-    """
-
-    articulos = Articulo.objects.select_related('autor', 'seccion') \
-        .filter(publicado_en__year=anio, publicado_en__month=mes) \
-        .order_by('-publicado_en').all()
-
-    return render(request, 'articulos/articulos_por_fecha.html', {'articulos': articulos, 'anio': anio, 'mes': mes})
-
-
-"""
-URL 4: Muestra los articulos filtrando por el nombre de la sección.
-"""
-
-
-def articulos_por_seccion(request, nombre):
-
-
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT a.*
-        FROM periodicoweb_articulo a
-        INNER JOIN periodicoweb_seccion s ON a.seccion_id = s.id
-        WHERE s.nombre = %s
-        ORDER BY a.publicado_en DESC, [nombre])
-    """
-    articulos = Articulo.objects.select_related('seccion', 'autor') \
-        .filter(seccion__nombre=nombre) \
-        .order_by('-publicado_en').all()
-
-
-    return render(request, 'articulos/articulos_por_seccion.html', {'articulos': articulos, 'nombre': nombre})
-
-
-"""
-URL 5: Muestra los articulos que su titulo o contenido tenga el texto indicado.
-"""
-
-
-def buscar_articulos(request, criterio):
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT a.*
-        FROM periodicoweb_articulo a
-        WHERE a.titulo LIKE %s
-        OR a.contenido LIKE %s
-        ORDER BY a.publicado_en DESC, 
-        ['%' + criterio + '%', '%' + criterio + '%'])
-    """
-    
-    articulos = Articulo.objects.select_related('autor', 'seccion') \
-        .filter(Q(titulo__icontains=criterio) | Q(contenido__icontains=criterio)) \
-        .order_by('-publicado_en').all()
-    
-    return render(request, 'articulos/buscar_articulos.html', {'articulos': articulos, 'criterio': criterio})
-
-
-"""
-URL 6: Calcula estadisticas sobre los articulos publicados, como la cantidad total, promedio, máximo y mínimo de longitud de contenido.
-"""
-
-
-def estadisticas_articulos(request):
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT 
-        COUNT(*) AS total_articulos,
-        AVG(LENGTH(contenido)) AS promedio_longitud,
-        MAX(LENGTH(contenido)) AS max_longitud,
-        MIN(LENGTH(contenido)) AS min_longitud
-        FROM periodicoweb_articulo
-    )
-    """
-    articulos = Articulo.objects.annotate(longitud=Length('contenido'))
-    estadisticas = articulos.aggregate(
-        total_articulos=Count('id'),
-        promedio_longitud=Avg('longitud'),
-        max_longitud=Max('longitud'),
-        min_longitud=Min('longitud')
-    )
-
-
-    return render(request, 'articulos/estadisticas_articulos.html', {'estadisticas': estadisticas})
-
-
-"""
-URL 7: Muestra las estadisticas de articulos agrupadas por autor.
-"""
-
-
-def estadisticas_autores(request):
-    """
-    -SQL-
-
-    autores = Articulo.objects.raw(
-        SELECT autor_id,
-        COUNT(*) AS total_articulos,
-        MAX(publicado_en) AS ultima_publicacion
-        FROM periodicoweb_articulo
-        GROUP BY autor_id
-        ORDER BY total_articulos DESC
-    )
-    """
-    
-    autores = (
-        Articulo.objects.values('autor__nombre')
-        .annotate(total_articulos=Count('id'), ultima_publicacion=Max('publicado_en'))
-        .order_by('-total_articulos')
-    )
-
-
-    return render(request, 'articulos/estadisticas_autores.html', {'autores': autores})
-
-
-"""
-URL 8: Muestra estadísticas por sección, usando annotate para el calculo total de articulos y promedio de longitud del contenido de artículos para cada sección.
-"""
-
-
-def estadisticas_secciones(request):
-    """
-    -SQL-
-
-    secciones = Seccion.objects.raw(
-        SELECT s.nombre,
-        COUNT(a.id) AS total_articulos,
-        AVG(LENGTH(a.contenido)) AS promedio_longitud
-        FROM periodicoweb_seccion s
-        LEFT JOIN periodicoweb_articulo a ON a.seccion_id = s.id
-        GROUP BY s.nombre
-        ORDER BY total_articulos DESC
-    )
-    """
-    
-    secciones = Seccion.objects.annotate(
-        total_articulos=Count('articulo'),
-        promedio_longitud=Avg(Length('articulo__contenido'))
-    ).order_by('-total_articulos')
-
-
-    return render(request, 'articulos/estadisticas_secciones.html', {'secciones': secciones})
-
-
-"""
-URL 9: Muestra los útimos 5 artículos por fecha de publicación descendente, incluyendo datos de autor y sección.
-"""
-
-
-def ultimos_articulos(request):
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
-        FROM periodicoweb_articulo a
-        LEFT JOIN periodicoweb_autor au ON a.autor_id = au.id
-        LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
-        ORDER BY a.publicado_en DESC
-        LIMIT 5)
-    """
-    
-    articulos = Articulo.objects.select_related('autor', 'seccion').order_by('-publicado_en').all()[:5]
-
-
-    return render(request, 'articulos/ultimos_articulos.html', {'articulos': articulos})
-
-
-"""
-URL 10: Muestra los artículos que no tienen etiquetas asociadas.
-"""
-
-
-def articulos_con_etiquetas(request):
-    """
-    -SQL-
-
-    articulos = Articulo.objects.raw(
-        SELECT DISTINCT a.*
-        FROM periodicoweb_articulo a
-        JOIN periodicoweb_articulo_etiquetas ae ON ae.articulo_id = a.id
-        JOIN periodicoweb_etiqueta e ON e.id = ae.etiqueta_id
-        ORDER BY a.publicado_en DESC
-    )
-    """
-    
-    etiquetas_prefetch = Prefetch('articulo_etiquetas__etiqueta', queryset=Etiqueta.objects.all())
-    articulos = (
-        Articulo.objects.prefetch_related(etiquetas_prefetch)
-                        .select_related('autor', 'seccion')
-                        .filter(articulo_etiquetas__isnull=False)
-                        .distinct()
-                        .order_by('-publicado_en')[:10]
-    )
-    return render(request, 'articulos/articulos_con_etiquetas.html', {'articulos': articulos})
 
 def mi_error_400(request, exception=None):
     return render(request, 'errores/400.html', None, None, 400)
@@ -295,9 +58,48 @@ def mi_error_500(request):
     return render(request, 'errores/500.html', None, None, 500)
 
 """
+Sesiones y Permisos
+"""
+def registrar_usuario(request):
+    if request.method == 'POST':
+        formulario = RegistroForm(request.POST)
+        if formulario.is_valid():
+            user = formulario.save()
+            rol = formulario.cleaned_data.get('rol')  # ← SIN int()
+            
+            if(rol == UsuarioSesion.AUTOR):
+                grupo = Group.objects.get(name='Autores')
+                grupo.user_set.add(user)
+                autor = Autor.objects.create(usuariosesion=user)
+                autor.save()
+            elif(rol == UsuarioSesion.USUARIO):
+                grupo = Group.objects.get(name='Usuarios')
+                grupo.user_set.add(user)
+                usuario = Usuario.objects.create(usuariosesion=user)
+                usuario.save()
+            
+            login(request, user)
+            
+            # PUNTO 4: 4 variables CORREGIDAS
+            from datetime import datetime
+            request.session['nombre'] = user.username
+            request.session['rol'] = dict(UsuarioSesion.ROLES)[int(rol)]  # ← FIXED
+            request.session['fecha_login'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+            request.session['visitas'] = 1
+            
+            return redirect('index')
+    else:
+        formulario = RegistroForm()
+    return render(request, 'registration/signup.html', {'formulario': formulario})
+
+
+
+"""
 CRUD 1: Autor
 """
 
+@login_required
+@permission_required('periodicoweb.view_autor')
 def autor_list(request):
     query_nombre = request.GET.get('nombre', '').strip()
     query_edad = request.GET.get('edad', '').strip()
@@ -330,7 +132,8 @@ def autor_list(request):
     }
     return render(request, 'autor/autor_list.html', context)
 
-
+@login_required
+@permission_required('periodicoweb.add_autor')
 def autor_create(request):
     if request.method == 'POST':
         form = AutorForm(request.POST, request.FILES)
@@ -346,6 +149,8 @@ def autor_create(request):
         'title': 'Crear autor',
     })
 
+@login_required
+@permission_required('periodicoweb.change_autor')
 def autor_update(request, pk):
     autor = Autor.objects.filter(pk=pk).first()
     if not autor:
@@ -365,7 +170,8 @@ def autor_update(request, pk):
         'title': 'Editar autor',
     })
 
-
+@login_required
+@permission_required('periodicoweb.delete_autor')
 def autor_delete(request, pk):
     autor = Autor.objects.filter(pk=pk).first()
     if not autor:
@@ -383,7 +189,8 @@ def autor_delete(request, pk):
 """
 CRUD 2: Evento
 """
-
+@login_required
+@permission_required('periodicoweb.view_evento')
 def evento_list(request):
     query_nombre = request.GET.get('nombre', '').strip()
     query_lugar = request.GET.get('lugar', '').strip()
@@ -411,6 +218,8 @@ def evento_list(request):
     }
     return render(request, 'evento/evento_list.html', context)
 
+@login_required
+@permission_required('periodicoweb.add_evento')
 def evento_create(request):
     if request.method == 'POST':
         form = EventoForm(request.POST)
@@ -702,7 +511,8 @@ def etiqueta_delete(request, pk):
 """
 CRUD 6: Comentario
 """
-
+@login_required
+@permission_required('periodicoweb.view_comentario')
 def comentario_list(request):
     query_usuario = request.GET.get('usuario', '').strip()
     query_articulo = request.GET.get('articulo', '').strip()
@@ -730,17 +540,21 @@ def comentario_list(request):
     }
     return render(request, 'comentario/comentario_list.html', context)
 
+@login_required
+@permission_required('periodicoweb.add_comentario')
 def comentario_create(request):
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
-            comentario = form.save()
+            comentario = form.save(commit=False)  # ← NUEVO
+            comentario.usuario = Usuario.objects.get(usuariosesion=request.user)  # ← NUEVO
+            comentario.save()  # ← NUEVO
             messages.success(request, 'Se ha creado el comentario correctamente.')
             return redirect('comentario_list')
-        else:
-            messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
     else:
-        form = ComentarioForm()
+        # Formulario con usuario pre-seleccionado
+        usuario = Usuario.objects.get(usuariosesion=request.user)
+        form = ComentarioForm(initial={'usuario': usuario})
 
     return render(request, 'comentario/comentario_form.html', {'form': form, 'title': 'Crear comentario'})
 
@@ -775,3 +589,265 @@ def comentario_delete(request, pk):
         return redirect('comentario_list')
 
     return redirect('comentario_list')
+
+# """
+# URL 1: Obtiene todos los articulos junto con su autor y seccion asociados.
+# """
+# def listar_articulos(request):
+#     articulos = Articulo.objects.select_related('autor', 'seccion').order_by('-publicado_en').all()
+
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT a.* 
+#         FROM periodicoweb_articulo a
+#         JOIN periodicoweb_autor au ON a.autor_id = au.id
+#         LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+#         ORDER BY a.publicado_en DESC
+#     )
+#     """
+
+#     return render(request, 'articulos/articulos.html', {'articulos': articulos})
+
+
+# """
+# URL 2: Muestra los detalles especificos de un articulo especifico por su ID.
+# """
+
+
+# def detalle_articulo(request, id):
+    
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
+#         FROM periodicoweb_articulo a
+#         INNER JOIN periodicoweb_autor au ON a.autor_id = au.id
+#         LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+#         WHERE a.id = %s, [id])
+#     """
+
+#     articulo = get_object_or_404(
+#         Articulo.objects.select_related('autor', 'seccion'),
+#         pk=id
+#     )
+
+#     return render(request, 'articulos/detalle.html', {'articulo': articulo})
+
+
+# """
+# URL 3: Muestra los articulos publicados en un año y mes específicos.
+# """
+
+
+# def articulos_por_fecha(request, anio, mes):
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT a.*
+#         FROM periodicoweb_articulo a
+#         WHERE EXTRACT(YEAR FROM a.publicado_en) = %s
+#         AND EXTRACT(MONTH FROM a.publicado_en) = %s
+#         ORDER BY a.publicado_en DESC, [anio, mes])
+#     """
+
+#     articulos = Articulo.objects.select_related('autor', 'seccion') \
+#         .filter(publicado_en__year=anio, publicado_en__month=mes) \
+#         .order_by('-publicado_en').all()
+
+#     return render(request, 'articulos/articulos_por_fecha.html', {'articulos': articulos, 'anio': anio, 'mes': mes})
+
+
+# """
+# URL 4: Muestra los articulos filtrando por el nombre de la sección.
+# """
+
+
+# def articulos_por_seccion(request, nombre):
+
+
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT a.*
+#         FROM periodicoweb_articulo a
+#         INNER JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+#         WHERE s.nombre = %s
+#         ORDER BY a.publicado_en DESC, [nombre])
+#     """
+#     articulos = Articulo.objects.select_related('seccion', 'autor') \
+#         .filter(seccion__nombre=nombre) \
+#         .order_by('-publicado_en').all()
+
+
+#     return render(request, 'articulos/articulos_por_seccion.html', {'articulos': articulos, 'nombre': nombre})
+
+
+# """
+# URL 5: Muestra los articulos que su titulo o contenido tenga el texto indicado.
+# """
+
+
+# def buscar_articulos(request, criterio):
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT a.*
+#         FROM periodicoweb_articulo a
+#         WHERE a.titulo LIKE %s
+#         OR a.contenido LIKE %s
+#         ORDER BY a.publicado_en DESC, 
+#         ['%' + criterio + '%', '%' + criterio + '%'])
+#     """
+    
+#     articulos = Articulo.objects.select_related('autor', 'seccion') \
+#         .filter(Q(titulo__icontains=criterio) | Q(contenido__icontains=criterio)) \
+#         .order_by('-publicado_en').all()
+    
+#     return render(request, 'articulos/buscar_articulos.html', {'articulos': articulos, 'criterio': criterio})
+
+
+# """
+# URL 6: Calcula estadisticas sobre los articulos publicados, como la cantidad total, promedio, máximo y mínimo de longitud de contenido.
+# """
+
+
+# def estadisticas_articulos(request):
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT 
+#         COUNT(*) AS total_articulos,
+#         AVG(LENGTH(contenido)) AS promedio_longitud,
+#         MAX(LENGTH(contenido)) AS max_longitud,
+#         MIN(LENGTH(contenido)) AS min_longitud
+#         FROM periodicoweb_articulo
+#     )
+#     """
+#     articulos = Articulo.objects.annotate(longitud=Length('contenido'))
+#     estadisticas = articulos.aggregate(
+#         total_articulos=Count('id'),
+#         promedio_longitud=Avg('longitud'),
+#         max_longitud=Max('longitud'),
+#         min_longitud=Min('longitud')
+#     )
+
+
+#     return render(request, 'articulos/estadisticas_articulos.html', {'estadisticas': estadisticas})
+
+
+# """
+# URL 7: Muestra las estadisticas de articulos agrupadas por autor.
+# """
+
+
+# def estadisticas_autores(request):
+#     """
+#     -SQL-
+
+#     autores = Articulo.objects.raw(
+#         SELECT autor_id,
+#         COUNT(*) AS total_articulos,
+#         MAX(publicado_en) AS ultima_publicacion
+#         FROM periodicoweb_articulo
+#         GROUP BY autor_id
+#         ORDER BY total_articulos DESC
+#     )
+#     """
+    
+#     autores = (
+#         Articulo.objects.values('autor__nombre')
+#         .annotate(total_articulos=Count('id'), ultima_publicacion=Max('publicado_en'))
+#         .order_by('-total_articulos')
+#     )
+
+
+#     return render(request, 'articulos/estadisticas_autores.html', {'autores': autores})
+
+
+# """
+# URL 8: Muestra estadísticas por sección, usando annotate para el calculo total de articulos y promedio de longitud del contenido de artículos para cada sección.
+# """
+
+
+# def estadisticas_secciones(request):
+#     """
+#     -SQL-
+
+#     secciones = Seccion.objects.raw(
+#         SELECT s.nombre,
+#         COUNT(a.id) AS total_articulos,
+#         AVG(LENGTH(a.contenido)) AS promedio_longitud
+#         FROM periodicoweb_seccion s
+#         LEFT JOIN periodicoweb_articulo a ON a.seccion_id = s.id
+#         GROUP BY s.nombre
+#         ORDER BY total_articulos DESC
+#     )
+#     """
+    
+#     secciones = Seccion.objects.annotate(
+#         total_articulos=Count('articulo'),
+#         promedio_longitud=Avg(Length('articulo__contenido'))
+#     ).order_by('-total_articulos')
+
+
+#     return render(request, 'articulos/estadisticas_secciones.html', {'secciones': secciones})
+
+
+# """
+# URL 9: Muestra los útimos 5 artículos por fecha de publicación descendente, incluyendo datos de autor y sección.
+# """
+
+
+# def ultimos_articulos(request):
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT a.*, au.nombre AS autor_nombre, s.nombre AS seccion_nombre
+#         FROM periodicoweb_articulo a
+#         LEFT JOIN periodicoweb_autor au ON a.autor_id = au.id
+#         LEFT JOIN periodicoweb_seccion s ON a.seccion_id = s.id
+#         ORDER BY a.publicado_en DESC
+#         LIMIT 5)
+#     """
+    
+#     articulos = Articulo.objects.select_related('autor', 'seccion').order_by('-publicado_en').all()[:5]
+
+
+#     return render(request, 'articulos/ultimos_articulos.html', {'articulos': articulos})
+
+
+# """
+# URL 10: Muestra los artículos que no tienen etiquetas asociadas.
+# """
+
+
+# def articulos_con_etiquetas(request):
+#     """
+#     -SQL-
+
+#     articulos = Articulo.objects.raw(
+#         SELECT DISTINCT a.*
+#         FROM periodicoweb_articulo a
+#         JOIN periodicoweb_articulo_etiquetas ae ON ae.articulo_id = a.id
+#         JOIN periodicoweb_etiqueta e ON e.id = ae.etiqueta_id
+#         ORDER BY a.publicado_en DESC
+#     )
+#     """
+    
+#     etiquetas_prefetch = Prefetch('articulo_etiquetas__etiqueta', queryset=Etiqueta.objects.all())
+#     articulos = (
+#         Articulo.objects.prefetch_related(etiquetas_prefetch)
+#                         .select_related('autor', 'seccion')
+#                         .filter(articulo_etiquetas__isnull=False)
+#                         .distinct()
+#                         .order_by('-publicado_en')[:10]
+#     )
+#     return render(request, 'articulos/articulos_con_etiquetas.html', {'articulos': articulos})
