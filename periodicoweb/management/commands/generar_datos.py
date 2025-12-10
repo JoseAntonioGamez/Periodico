@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from faker import Faker
 from periodicoweb.models import (
+    UsuarioSesion,
     Autor, PerfilAutor, Usuario, PerfilUsuario,
     Seccion, Articulo, Portada,
     Etiqueta, ArticuloEtiqueta, Evento, Grupo, Comentario
@@ -28,21 +29,35 @@ class Command(BaseCommand):
 
     def generate_autores(self):
         for _ in range(10):
-            Autor.objects.create(
-                nombre=fake.unique.name(),
-                bio=fake.text(max_nb_chars=200),
-                edad=random.randint(18, 80),
-                sueldo=round(random.uniform(1000, 5000), 2),
-                es_redactor=fake.boolean()
-            )
+            user = UsuarioSesion.objects.create_user(
+                username=fake.unique.user_name(),
+                email=fake.unique.email(),
+                password='autor1234',
+                rol=UsuarioSesion.AUTOR,
+        )
+        Autor.objects.create(
+            usuariosesion=user,
+            nombre=fake.unique.name(),
+            bio=fake.text(max_nb_chars=200),
+            edad=random.randint(18, 80),
+            sueldo=round(random.uniform(1000, 5000), 2),
+            es_redactor=fake.boolean()
+        )
 
     def generate_usuarios(self):
         for _ in range(10):
-            Usuario.objects.create(
-                nombre=fake.unique.user_name(),
-                es_premium=fake.boolean(),
-                puntos=random.randint(0, 500)
+            user = UsuarioSesion.objects.create_user(
+                username=fake.unique.user_name(),
+                email=fake.unique.email(),
+                password='usuario1234',
+                rol=UsuarioSesion.USUARIO,
             )
+        Usuario.objects.create(
+            usuariosesion=user,
+            nombre=fake.unique.user_name(),
+            es_premium=fake.boolean(),
+            puntos=random.randint(0, 500)
+        )
 
     def generate_secciones(self):
         opciones = ['POL', 'DEP', 'CUT']

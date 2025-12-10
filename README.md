@@ -322,3 +322,62 @@ Bootstrap, Bootstrap_icons y Pillow pueden dar errores a la hora de clonar el pr
 
 No se ha podido encontrar una solucion a esto, ya que puede ser que den conflictos por las versiones instaladas.
 )
+
+## Sesiones y Permisos
+
+### Usuario tipo Autor
+
+- Pertenece al grupo **Autores**.
+- Lo que puede hacer:
+  - Entrar al listado y CRUD de **Autores** y **Eventos**.
+  - Crear, editar y borrar autores y eventos (según los permisos que tenga el grupo Autores).
+  - Cuando crea un evento, solo puede elegir **artículos suyos** en el desplegable.
+  - En las plantillas ve los botones de crear, editar y borrar autores y eventos.
+
+### Usuario tipo Usuario (lector)
+
+- Pertenece al grupo **Usuarios**.
+- Lo que puede hacer:
+  - Crear **comentarios** y ver el listado de **sus propios comentarios**.
+  - Acceder a las vistas relacionadas con comentarios (crear y listar).
+  - No puede acceder al CRUD de autores ni eventos; si lo intenta, no se le permite entrar.
+
+## Cómo funciona el registro
+
+En el formulario de registro el usuario elige si quiere ser **Autor** o **Usuario**:
+
+- Si elige **Autor**:
+  - Lo añado al grupo Autores.
+  - Creo un objeto `Autor` asociado a ese usuario.
+  - Creo su `PerfilAutor` con los datos extra (por ejemplo, ciudad).
+- Si elige **Usuario**:
+  - Lo añado al grupo Usuarios.
+  - Creo un objeto `Usuario` asociado a ese usuario.
+  - Creo su `PerfilUsuario` con los datos extra (por ejemplo, teléfono).
+
+## Sesiones y cabecera
+
+Al hacer login guardo en la sesión:
+
+- Nombre de usuario.
+- Rol (Autor o Usuario).
+- Fecha y hora de inicio de sesión.
+- Número de visitas durante esa sesión.
+
+En la plantilla base muestro estos datos en la cabecera siempre que el usuario esté autenticado.
+
+## Reinicio de contraseña
+
+He configurado el sistema de reinicio de contraseña usando las vistas incluidas en Django.
+
+El flujo para el usuario es:
+
+1. En la web, ir a la ruta `/accounts/password_reset/`.
+2. Introducir el **correo electrónico** con el que está registrado.
+3. Django genera un enlace de reinicio de contraseña:
+   - En modo desarrollo, ese enlace se muestra por **consola** (donde está corriendo `runserver`).
+4. Copiar el enlace de la consola y abrirlo en el navegador.
+5. Introducir la **nueva contraseña** dos veces y confirmar.
+6. A partir de ahí, el usuario ya puede iniciar sesión con la nueva contraseña.
+
+Este sistema aprovecha el mecanismo estándar de autenticación y formularios de reset de contraseña que proporciona Django.

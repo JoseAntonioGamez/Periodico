@@ -10,10 +10,27 @@ class RegistroForm(UserCreationForm):
         (UsuarioSesion.USUARIO, 'Usuario'),
     )
     rol = forms.ChoiceField(choices=roles)
+
+    ciudad = forms.CharField(required=False, max_length=50, label="Ciudad (solo autores)")
+    telefono = forms.CharField(required=False, max_length=15, label="Teléfono (solo usuarios)")
+
     class Meta:
         model = UsuarioSesion
-        fields = ['username', 'email', 'password1', 'password2', 'rol']
+        fields = ['username', 'email', 'password1', 'password2', 'rol', 'ciudad', 'telefono']
 
+    def clean(self):
+        cleaned_data = super().clean()
+        rol = cleaned_data.get('rol')
+        ciudad = cleaned_data.get('ciudad')
+        telefono = cleaned_data.get('telefono')
+
+        if rol == str(UsuarioSesion.AUTOR) and not ciudad:
+            self.add_error('ciudad', 'La ciudad es obligatoria para autores.')
+
+        if rol == str(UsuarioSesion.USUARIO) and not telefono:
+            self.add_error('telefono', 'El teléfono es obligatorio para usuarios.')
+
+        return cleaned_data
 class AutorForm(ModelForm):
     class Meta:
         model = Autor
@@ -95,6 +112,17 @@ class EventoForm(ModelForm):
             'capacidad': forms.NumberInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+        if request is not None and request.user.is_authenticated:
+            if request.user.rol == UsuarioSesion.AUTOR:
+                self.fields['articulos'].queryset = Articulo.objects.filter(
+                    autor__usuariosesion=request.user
+                )
+            else:
+                self.fields['articulos'].queryset = Articulo.objects.all()
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre')
@@ -107,7 +135,6 @@ class EventoForm(ModelForm):
             if len(nombre) > 80:
                 self.add_error('nombre', 'El nombre no puede superar 80 caracteres.')
         return nombre
-
 
     def clean_capacidad(self):
         capacidad = self.cleaned_data.get('capacidad')

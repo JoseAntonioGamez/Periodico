@@ -1,7 +1,15 @@
 from django.contrib import admin
-from .models import Autor, PerfilAutor, Usuario, PerfilUsuario, Seccion, Articulo, Portada, Etiqueta, ArticuloEtiqueta, Evento, Grupo, Comentario
+from django.contrib.auth.admin import UserAdmin
+from .models import UsuarioSesion, Autor, PerfilAutor, Usuario, PerfilUsuario, Seccion, Articulo, Portada, Etiqueta, ArticuloEtiqueta, Evento, Grupo, Comentario
 
 # Register your models here.
+
+@admin.register(UsuarioSesion)
+class UsuarioSesionAdmin(UserAdmin):
+    fieldsets = UserAdmin.fieldsets + (
+        ('Rol', {'fields': ('rol',)}),
+    )
+    list_display = ('username', 'email', 'rol', 'is_staff', 'is_active')
 
 admin.site.register(Autor)
 admin.site.register(PerfilAutor)

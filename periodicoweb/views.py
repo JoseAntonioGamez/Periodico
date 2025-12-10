@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.contrib.auth.models import Group
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import *
@@ -9,7 +10,7 @@ from django.views.defaults import page_not_found
 from .forms import *
 from django.contrib.auth import login
 from django.contrib.auth import logout as auth_logout
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 
 
 # Create your views here.
@@ -37,7 +38,7 @@ def index(request):
     return render(request, 'index.html')
 
 def logout_view(request):
-    request.session.flush()  # Limpia TODO
+    request.session.flush() 
     auth_logout(request)
     return redirect('index')
 
@@ -65,28 +66,29 @@ def registrar_usuario(request):
         formulario = RegistroForm(request.POST)
         if formulario.is_valid():
             user = formulario.save()
-            rol = formulario.cleaned_data.get('rol')  # ← SIN int()
-            
-            if(rol == UsuarioSesion.AUTOR):
+            rol = formulario.cleaned_data.get('rol')
+            ciudad = formulario.cleaned_data.get('ciudad')
+            telefono = formulario.cleaned_data.get('telefono')
+
+            if rol == str(UsuarioSesion.AUTOR):
                 grupo = Group.objects.get(name='Autores')
                 grupo.user_set.add(user)
-                autor = Autor.objects.create(usuariosesion=user)
-                autor.save()
-            elif(rol == UsuarioSesion.USUARIO):
+                autor = Autor.objects.create(usuariosesion=user, nombre=user.username)
+                PerfilAutor.objects.create(autor=autor, ciudad=ciudad)
+
+            elif rol == str(UsuarioSesion.USUARIO):
                 grupo = Group.objects.get(name='Usuarios')
                 grupo.user_set.add(user)
-                usuario = Usuario.objects.create(usuariosesion=user)
-                usuario.save()
-            
+                usuario = Usuario.objects.create(usuariosesion=user, nombre=user.username)
+                PerfilUsuario.objects.create(usuario=usuario, telefono=telefono)
+
             login(request, user)
-            
-            # PUNTO 4: 4 variables CORREGIDAS
-            from datetime import datetime
+
             request.session['nombre'] = user.username
-            request.session['rol'] = dict(UsuarioSesion.ROLES)[int(rol)]  # ← FIXED
+            request.session['rol'] = dict(UsuarioSesion.ROLES)[int(rol)]
             request.session['fecha_login'] = datetime.now().strftime("%d/%m/%Y %H:%M")
             request.session['visitas'] = 1
-            
+
             return redirect('index')
     else:
         formulario = RegistroForm()
@@ -98,7 +100,6 @@ def registrar_usuario(request):
 CRUD 1: Autor
 """
 
-@login_required
 @permission_required('periodicoweb.view_autor')
 def autor_list(request):
     query_nombre = request.GET.get('nombre', '').strip()
@@ -132,7 +133,6 @@ def autor_list(request):
     }
     return render(request, 'autor/autor_list.html', context)
 
-@login_required
 @permission_required('periodicoweb.add_autor')
 def autor_create(request):
     if request.method == 'POST':
@@ -149,7 +149,6 @@ def autor_create(request):
         'title': 'Crear autor',
     })
 
-@login_required
 @permission_required('periodicoweb.change_autor')
 def autor_update(request, pk):
     autor = Autor.objects.filter(pk=pk).first()
@@ -170,7 +169,6 @@ def autor_update(request, pk):
         'title': 'Editar autor',
     })
 
-@login_required
 @permission_required('periodicoweb.delete_autor')
 def autor_delete(request, pk):
     autor = Autor.objects.filter(pk=pk).first()
@@ -189,7 +187,7 @@ def autor_delete(request, pk):
 """
 CRUD 2: Evento
 """
-@login_required
+
 @permission_required('periodicoweb.view_evento')
 def evento_list(request):
     query_nombre = request.GET.get('nombre', '').strip()
@@ -218,7 +216,7 @@ def evento_list(request):
     }
     return render(request, 'evento/evento_list.html', context)
 
-@login_required
+
 @permission_required('periodicoweb.add_evento')
 def evento_create(request):
     if request.method == 'POST':
@@ -234,6 +232,7 @@ def evento_create(request):
 
     return render(request, 'evento/evento_form.html', {'form': form, 'title': 'Crear evento'})
 
+@permission_required('periodicoweb.change_evento')
 def evento_update(request, pk):
     evento = Evento.objects.filter(pk=pk).first()
     if not evento:
@@ -241,7 +240,7 @@ def evento_update(request, pk):
         return redirect('evento_list')
 
     if request.method == 'POST':
-        form = EventoForm(request.POST, instance=evento)
+        form = EventoForm(request.POST, instance=evento, request=request)
         if form.is_valid():
             form.save()
             messages.success(request, f'Se ha actualizado el evento "{evento.nombre}" correctamente.')
@@ -249,7 +248,7 @@ def evento_update(request, pk):
         else:
             messages.error(request, 'Hay errores en el formulario. Revisa los campos.')
     else:
-        form = EventoForm(instance=evento)
+        form = EventoForm(instance=evento, request=request)
 
     return render(request, 'evento/evento_form.html', {'form': form, 'title': 'Editar evento'})
 
@@ -511,14 +510,20 @@ def etiqueta_delete(request, pk):
 """
 CRUD 6: Comentario
 """
-@login_required
+
 @permission_required('periodicoweb.view_comentario')
 def comentario_list(request):
     query_usuario = request.GET.get('usuario', '').strip()
     query_articulo = request.GET.get('articulo', '').strip()
     query_puntuacion = request.GET.get('puntuacion', '').strip()
 
-    comentarios = Comentario.objects.all()
+    
+    if request.user.rol == UsuarioSesion.USUARIO:
+        comentarios = Comentario.objects.filter(
+            usuario__usuariosesion=request.user
+        )
+    else:
+        comentarios = Comentario.objects.all()
 
     if query_usuario:
         comentarios = comentarios.filter(usuario__nombre__icontains=query_usuario)
@@ -540,19 +545,18 @@ def comentario_list(request):
     }
     return render(request, 'comentario/comentario_list.html', context)
 
-@login_required
 @permission_required('periodicoweb.add_comentario')
 def comentario_create(request):
     if request.method == 'POST':
         form = ComentarioForm(request.POST)
         if form.is_valid():
-            comentario = form.save(commit=False)  # ← NUEVO
-            comentario.usuario = Usuario.objects.get(usuariosesion=request.user)  # ← NUEVO
-            comentario.save()  # ← NUEVO
+            comentario = form.save(commit=False) 
+            comentario.usuario = Usuario.objects.get(usuariosesion=request.user)  
+            comentario.save()  
             messages.success(request, 'Se ha creado el comentario correctamente.')
             return redirect('comentario_list')
     else:
-        # Formulario con usuario pre-seleccionado
+        
         usuario = Usuario.objects.get(usuariosesion=request.user)
         form = ComentarioForm(initial={'usuario': usuario})
 
